@@ -1,0 +1,6 @@
+{
+  "name": "CodePulse-AI",
+  "description": "Intelligent GitHub repository analyzer powered by IBM Watsonx.ai. Generates human-readable summaries, tech stack analysis, and setup guides from any public repository.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
