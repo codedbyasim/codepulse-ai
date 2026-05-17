@@ -522,4 +522,3 @@ For issues, questions, or suggestions:
 
 **Made with ❤️ using IBM Watsonx.ai**
 
-View your app in AI Studio: https://ai.studio/apps/drive/154M9wxUW02B4A16LtMBYyaPYqv6CAlgL
