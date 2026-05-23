@@ -109,7 +109,7 @@ Before you begin, ensure you have the following installed:
 2. Enable the Gemini API in your Google Cloud project
 3. Create a new API key under APIs & Services → Credentials
 4. Copy the key and store it securely
-5. (Optional) Set `GOOGLE_GEMINI_MODEL_ID` to `gemini-2.0-flash`
+5. (Optional) Set `GOOGLE_GEMINI_MODEL_ID` to `gemini-2.5-flash`
 
 ## 🔧 Installation
 
@@ -148,7 +148,7 @@ Edit the `.env` file with your credentials:
 ```env
 # Google Gemini Configuration
 GOOGLE_GEMINI_API_KEY=your_google_gemini_api_key_here
-GOOGLE_GEMINI_MODEL_ID=gemini-2.0-flash
+GOOGLE_GEMINI_MODEL_ID=gemini-2.5-flash
 
 # GitHub Configuration (Optional - for higher rate limits)
 GITHUB_TOKEN=your_github_personal_access_token
@@ -182,7 +182,7 @@ The application will be available at:
 | Variable                 | Description                  | Required | Default                             |
 | ------------------------ | ---------------------------- | -------- | ----------------------------------- |
 | `GOOGLE_GEMINI_API_KEY`  | Your Google Gemini API key   | Yes      | -                                   |
-| `GOOGLE_GEMINI_MODEL_ID` | Gemini model to use          | No       | `gemini-2.0-flash`                  |
+| `GOOGLE_GEMINI_MODEL_ID` | Gemini model to use          | No       | `gemini-2.5-flash`                  |
 | `GITHUB_TOKEN`           | GitHub personal access token | No       | -                                   |
 | `VITE_BACKEND_URL`       | Backend API URL              | No       | `http://localhost:3001`             |
 
@@ -195,7 +195,7 @@ The application will be available at:
    - Copy and save the key securely
 
 2. **Gemini Model:**
-   - The default model is `gemini-2.0-flash`
+   - The default model is `gemini-2.5-flash`
    - No project-specific model ID is required unless using a private Gemini deployment
 
 3. **Service URL:**

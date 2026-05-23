@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { RepoInfo, FileContent, BlastRadiusResult, GraphGenerationResult } from '../types';
 import { DependencyGraphVisualization } from './DependencyGraphVisualization';
 import { ImpactReport } from './ImpactReport';
 import axios from 'axios';
+import { ArrowLeft, Network, Eye, EyeOff, Search, FileText, Activity, Terminal } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
@@ -32,7 +34,6 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
 
   const repoKey = `${repoInfo.owner}/${repoInfo.name}`;
 
-  // Filter files for selection
   const sourceFiles = structure.filter(path => {
     const ext = path.split('.').pop()?.toLowerCase();
     return ['js', 'jsx', 'ts', 'tsx', 'py'].includes(ext || '');
@@ -42,7 +43,6 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
     ? sourceFiles.filter(f => f.toLowerCase().includes(searchQuery.toLowerCase()))
     : sourceFiles;
 
-  // Load graph data on mount
   useEffect(() => {
     loadGraphData();
   }, []);
@@ -65,12 +65,12 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
     setError(null);
     
     const messages = [
-      'Building dependency graph...',
-      'Analyzing file dependencies...',
-      'Calculating impact score...',
-      'Identifying critical impacts...',
-      'Generating AI insights...',
-      'Finalizing blast radius analysis...',
+      'Indexing file dependencies...',
+      'Mapping deep import links...',
+      'Constructing dependency tree...',
+      'Running impact calculation...',
+      'Evaluating system risk profile...',
+      'Finalizing blast radius report...',
     ];
     
     let i = 0;
@@ -105,162 +105,157 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
   };
 
   return (
-    <div className="animate-fade-in">
-      {/* Header */}
-      <div className="mb-8">
-        <button
+    <div className="space-y-8">
+      {/* Header Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800/80">
+        <motion.button
           onClick={onBack}
-          className="group mb-4 flex items-center gap-2 px-4 py-2 bg-white dark:bg-github-card border border-gray-200 dark:border-github-border rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:border-red-400 dark:hover:border-red-500 hover:text-red-600 dark:hover:text-red-400 hover:shadow-md transition-all duration-300"
+          className="w-fit flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#161b22]/50 hover:bg-slate-50 dark:hover:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-350 transition-all shadow-sm"
+          whileHover={{ x: -3 }}
+          whileTap={{ scale: 0.98 }}
         >
-          <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Back to Analysis
-        </button>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-2">
-              💥 Blast Radius Analysis
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Predict the impact of code changes across your repository
-            </p>
-          </div>
-          
-          {graphData && (
-            <button
-              onClick={() => setShowGraph(!showGraph)}
-              className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300"
-            >
-              {showGraph ? '📊 Hide Graph' : '🕸️ Show Dependency Graph'}
-            </button>
-          )}
-        </div>
-
-        {/* Repository Info */}
-        <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <div className="flex items-center gap-3">
-            <svg className="w-6 h-6 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-            </svg>
-            <div>
-              <h3 className="font-bold text-gray-900 dark:text-white">{repoInfo.owner}/{repoInfo.name}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {files.length} files analyzed • {sourceFiles.length} source files
-              </p>
-            </div>
-          </div>
-        </div>
+          <ArrowLeft className="w-4 h-4 text-cyan-550" />
+          <span>Back to Analyzer</span>
+        </motion.button>
+        
+        {graphData && (
+          <motion.button
+            onClick={() => setShowGraph(!showGraph)}
+            className="flex items-center justify-center gap-1.5 px-4.5 py-2.5 bg-gradient-to-r from-purple-550 to-indigo-650 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-500/10"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            {showGraph ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            <span>{showGraph ? 'Hide Dependency Graph' : 'Visualize Dependency Graph'}</span>
+          </motion.button>
+        )}
       </div>
 
-      {/* Graph Visualization */}
-      {showGraph && graphData && (
-        <div className="mb-8">
-          <DependencyGraphVisualization
-            graphData={graphData}
-            selectedFile={selectedFile}
-            onNodeClick={handleFileSelect}
-          />
-        </div>
-      )}
+      {/* Hero Intro */}
+      <div className="space-y-2">
+        <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+          <Activity className="w-8 h-8 text-cyan-550 animate-pulse" />
+          <span>Blast Radius Analysis</span>
+        </h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl font-light">
+          Trace code paths, calculate cascade risks, and forecast compilation and side-effect failures prior to deployment commits.
+        </p>
+      </div>
 
-      {/* File Selection View */}
+      {/* Graph Visualizer Panel */}
+      <AnimatePresence>
+        {showGraph && graphData && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="overflow-hidden"
+          >
+            <DependencyGraphVisualization
+              graphData={graphData}
+              selectedFile={selectedFile}
+              onNodeClick={handleFileSelect}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Select File Panel */}
       {viewMode === 'select' && (
-        <div className="bg-white dark:bg-github-card border border-gray-200 dark:border-github-border rounded-xl p-6 shadow-lg">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-            Select a File to Analyze
+        <motion.div 
+          className="bg-white dark:bg-github-card border border-slate-200 dark:border-slate-800/80 rounded-2xl p-6 shadow-sm"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+             <Terminal className="w-5 h-5 text-cyan-500" />
+             <span>Select a File to Analyze</span>
           </h2>
           
-          {/* Search */}
-          <div className="mb-4">
-            <div className="relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search files..."
-                className="w-full px-4 py-3 pl-10 bg-gray-50 dark:bg-github-dark border border-gray-300 dark:border-github-border rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-github-accent focus:border-transparent text-gray-900 dark:text-white"
-              />
-              <svg className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
+          {/* Search Input */}
+          <div className="relative mb-5">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Filter code modules (e.g. ts, tsx, py, js)..."
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-250 dark:border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-cyan-500 placeholder-slate-400 dark:placeholder-slate-500"
+            />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
           </div>
 
           {error && (
-            <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/50 rounded-lg text-red-700 dark:text-red-400">
+            <div className="mb-4 p-4.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-xs font-semibold">
               {error}
             </div>
           )}
 
-          {/* File List */}
-          <div className="max-h-96 overflow-y-auto space-y-2">
+          {/* Source Modules Scroll List */}
+          <div className="max-h-96 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
             {filteredFiles.length === 0 ? (
-              <p className="text-center text-gray-500 dark:text-gray-400 py-8">
-                No files found matching "{searchQuery}"
+              <p className="text-center text-slate-450 text-xs py-8 italic">
+                No matching code files.
               </p>
             ) : (
               filteredFiles.map((file) => (
-                <button
+                <motion.button
                   key={file}
                   onClick={() => handleFileSelect(file)}
-                  className="w-full text-left px-4 py-3 bg-gray-50 dark:bg-github-dark hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-gray-200 dark:border-github-border hover:border-blue-400 dark:hover:border-blue-500 rounded-lg transition-all duration-200 group"
+                  className="w-full text-left px-4 py-3 bg-slate-50 dark:bg-slate-900/40 hover:bg-cyan-500/5 border border-slate-200 dark:border-slate-800/80 hover:border-cyan-500/30 rounded-xl transition-all duration-200 flex items-center justify-between group"
+                  whileHover={{ x: 3 }}
+                  whileTap={{ scale: 0.99 }}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <svg className="w-5 h-5 text-gray-400 group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="font-mono text-sm text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                        {file}
-                      </span>
-                    </div>
-                    <svg className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <FileText className="w-4 h-4 text-slate-400 group-hover:text-cyan-500 shrink-0" />
+                    <span className="font-mono text-xs text-slate-700 dark:text-slate-350 truncate">
+                      {file}
+                    </span>
                   </div>
-                </button>
+                  <ArrowLeft className="w-3.5 h-3.5 text-slate-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all rotate-180 shrink-0" />
+                </motion.button>
               ))
             )}
           </div>
-        </div>
+        </motion.div>
       )}
 
-      {/* Analyzing View */}
+      {/* Analyzing Spinner Screen */}
       {viewMode === 'analyzing' && (
-        <div className="bg-white dark:bg-github-card border border-gray-200 dark:border-github-border rounded-xl p-8 shadow-lg text-center">
-          <div className="flex flex-col items-center">
+        <div className="bg-white dark:bg-github-card border border-slate-250 dark:border-slate-800 rounded-2xl p-10 shadow-sm text-center">
+          <div className="flex flex-col items-center py-6">
             <div className="relative mb-6">
-              <div className="w-20 h-20 border-4 border-red-200 dark:border-red-900 rounded-full"></div>
-              <div className="absolute top-0 left-0 w-20 h-20 border-4 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-16 h-16 border-4 border-slate-100 dark:border-slate-800 rounded-full"></div>
+              <div className="absolute top-0 left-0 w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              Analyzing Blast Radius
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+              Analyzing Cascade Impact
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-xs text-slate-450 font-mono mb-4 px-4 py-1.5 bg-slate-50 dark:bg-slate-900/60 rounded-full">
               {selectedFile}
             </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400 animate-pulse">
+            <p className="text-xs text-cyan-500 dark:text-cyan-400 font-semibold animate-pulse">
               {loadingMessage}
             </p>
           </div>
         </div>
       )}
 
-      {/* Results View */}
+      {/* Results Screen */}
       {viewMode === 'results' && analysisResult && (
-        <div>
-          <div className="mb-6 flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Analysis Results
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-2">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+              Impact Cascade Results
             </h2>
-            <button
+            <motion.button
               onClick={handleReset}
-              className="px-4 py-2 bg-gray-100 dark:bg-github-dark hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium transition-colors"
+              className="px-4 py-2 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-250 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-705 dark:text-slate-350 shadow-sm"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              Analyze Another File
-            </button>
+              Analyze Another Module
+            </motion.button>
           </div>
           
           <ImpactReport result={analysisResult} repoInfo={repoInfo} />
@@ -269,5 +264,3 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
     </div>
   );
 };
-
-

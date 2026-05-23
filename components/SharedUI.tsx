@@ -1,30 +1,32 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import mermaid from 'mermaid';
 import * as Diff from 'diff';
 import { marked } from 'marked';
+import { Folder, File, ChevronRight as ChevronRightIcon, ChevronDown as ChevronDownIcon, Download, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { Vulnerability } from '../types';
 
 // --- ICONS ---
 export const FolderIcon = () => (
-  <svg className="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" /></svg>
+  <Folder className="w-4 h-4 text-blue-500 shrink-0" />
 );
 export const FileIcon = ({ className = "text-gray-500" }: { className?: string }) => (
-  <svg className={`w-4 h-4 ${className}`} viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+  <File className={`w-4 h-4 shrink-0 ${className}`} />
 );
 export const ChevronRight = () => (
-  <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+  <ChevronRightIcon className="w-4 h-4 text-gray-400 shrink-0" />
 );
 export const ChevronDown = () => (
-  <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+  <ChevronDownIcon className="w-4 h-4 text-gray-400 shrink-0" />
 );
 export const DownloadIcon = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+  <Download className="w-4 h-4 shrink-0" />
 );
 export const ShieldCheckIcon = () => (
-  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+  <ShieldCheck className="w-5 h-5 text-green-500 shrink-0" />
 );
 export const AlertIcon = () => (
-    <svg className="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+    <AlertTriangle className="w-5 h-5 text-orange-500 shrink-0" />
 );
 
 // --- MERMAID DIAGRAM ---
@@ -35,7 +37,6 @@ export const MermaidDiagram: React.FC<{ chart: string; theme?: string }> = ({ ch
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [activeTheme, setActiveTheme] = useState<'dark' | 'neutral'>('dark');
 
-  // Detect system theme and listen for changes
   useEffect(() => {
     const checkTheme = () => {
       if (document.documentElement.classList.contains('dark')) {
@@ -63,7 +64,6 @@ export const MermaidDiagram: React.FC<{ chart: string; theme?: string }> = ({ ch
     return () => observer.disconnect();
   }, []);
 
-  // Fullscreen listener
   useEffect(() => {
     const handleFsChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
@@ -72,11 +72,9 @@ export const MermaidDiagram: React.FC<{ chart: string; theme?: string }> = ({ ch
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
   }, []);
 
-  // Mermaid Render
   useEffect(() => {
     if (mermaidRef.current && chart) {
-      // Clear previous content immediately to prevent flickering of old graph
-      mermaidRef.current.innerHTML = '<div class="animate-pulse w-full h-full bg-gray-100 dark:bg-gray-800/30 rounded"></div>';
+      mermaidRef.current.innerHTML = '<div class="animate-pulse w-full h-[300px] bg-slate-100 dark:bg-slate-800/40 rounded-xl"></div>';
 
       mermaid.initialize({ 
         startOnLoad: false, 
@@ -87,15 +85,15 @@ export const MermaidDiagram: React.FC<{ chart: string; theme?: string }> = ({ ch
           primaryColor: '#161b22',
           primaryTextColor: '#c9d1d9',
           primaryBorderColor: '#30363d',
-          lineColor: '#58a6ff',
+          lineColor: '#06b6d4',
           secondaryColor: '#0d1117',
           tertiaryColor: '#161b22',
         } : {
           primaryColor: '#ffffff',
           primaryTextColor: '#24292f',
           primaryBorderColor: '#d0d7de',
-          lineColor: '#0969da',
-          secondaryColor: '#f6f8fa',
+          lineColor: '#2563eb',
+          secondaryColor: '#f8fafc',
           tertiaryColor: '#ffffff',
         }
       });
@@ -109,10 +107,10 @@ export const MermaidDiagram: React.FC<{ chart: string; theme?: string }> = ({ ch
              mermaidRef.current.innerHTML = svg;
              const svgElem = mermaidRef.current.querySelector('svg');
              if (svgElem) {
-               svgElem.removeAttribute('width');
-               svgElem.removeAttribute('height');
-               svgElem.style.maxWidth = '100%';
-               svgElem.style.width = '100%'; 
+                svgElem.removeAttribute('width');
+                svgElem.removeAttribute('height');
+                svgElem.style.maxWidth = '100%';
+                svgElem.style.width = '100%'; 
              }
           }
         } catch (e) {
@@ -120,16 +118,15 @@ export const MermaidDiagram: React.FC<{ chart: string; theme?: string }> = ({ ch
           if (mermaidRef.current) {
             const safeChart = chart.replace(/</g, '&lt;').replace(/>/g, '&gt;');
             mermaidRef.current.innerHTML = `
-              <div class="flex flex-col items-center justify-center p-4 w-full border border-gray-200 dark:border-gray-800 rounded bg-gray-50 dark:bg-[#0d1117] transition-colors duration-300">
-                <p class="text-xs text-gray-500 mb-2 italic">Visual diagram unavailable (syntax error). Raw source:</p>
-                <pre class="text-[10px] text-gray-400 font-mono bg-black/5 dark:bg-black/20 p-2 rounded w-full overflow-auto whitespace-pre">${safeChart}</pre>
+              <div class="flex flex-col items-center justify-center p-6 w-full border border-red-200/50 dark:border-red-900/30 rounded-xl bg-red-50/50 dark:bg-red-950/10">
+                <p class="text-xs text-red-500 font-semibold mb-2">Rendering syntax error. Raw diagram syntax:</p>
+                <pre class="text-[10px] text-slate-400 font-mono bg-slate-950 p-3 rounded-lg w-full overflow-auto whitespace-pre">${safeChart}</pre>
               </div>
             `;
           }
         }
       };
       
-      // Small delay to let the DOM settle if switching themes rapidly
       setTimeout(render, 50);
     }
   }, [chart, activeTheme]);
@@ -150,7 +147,7 @@ export const MermaidDiagram: React.FC<{ chart: string; theme?: string }> = ({ ch
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `diagram-${Date.now()}.svg`;
+        link.download = `code-architecture-${Date.now()}.svg`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -158,41 +155,41 @@ export const MermaidDiagram: React.FC<{ chart: string; theme?: string }> = ({ ch
   };
 
   return (
-    <div ref={containerRef} className={`relative group border border-gray-200 dark:border-github-border rounded-lg bg-gray-50 dark:bg-[#0d1117] overflow-hidden transition-colors duration-300 ${isFullscreen ? 'flex items-center justify-center bg-white dark:bg-black' : ''}`}>
+    <div ref={containerRef} className={`relative group border border-gray-200 dark:border-github-border/70 rounded-xl bg-gray-50 dark:bg-[#0d1117]/80 overflow-hidden transition-colors duration-300 ${isFullscreen ? 'flex items-center justify-center bg-white dark:bg-black w-screen h-screen' : 'w-full'}`}>
         {/* Controls Toolbar */}
-        <div className="absolute top-4 right-4 flex items-center gap-1 bg-white/90 dark:bg-gray-800/90 backdrop-blur border border-gray-200 dark:border-gray-700 rounded-lg p-1.5 opacity-0 group-hover:opacity-100 transition-all duration-200 z-50 shadow-xl">
-            <button onClick={() => setScale(s => Math.max(0.1, s - 0.1))} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors" title="Zoom Out">
+        <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-white/95 dark:bg-slate-900/90 backdrop-blur border border-gray-200 dark:border-slate-800 rounded-xl p-1 opacity-0 group-hover:opacity-100 transition-all duration-200 z-40 shadow-xl">
+            <button onClick={() => setScale(s => Math.max(0.2, s - 0.15))} className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-gray-500 dark:text-gray-400" title="Zoom Out">
                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" /></svg>
             </button>
-            <span className="text-xs font-mono text-gray-500 dark:text-gray-400 w-12 text-center select-none">{Math.round(scale * 100)}%</span>
-            <button onClick={() => setScale(s => Math.min(5, s + 0.1))} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors" title="Zoom In">
+            <span className="text-xs font-mono text-gray-500 dark:text-gray-400 w-11 text-center select-none">{Math.round(scale * 100)}%</span>
+            <button onClick={() => setScale(s => Math.min(4, s + 0.15))} className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-gray-500 dark:text-gray-400" title="Zoom In">
                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
             </button>
             
-            <div className="w-px h-4 bg-gray-300 dark:bg-gray-600 mx-1"></div>
+            <div className="w-px h-4 bg-gray-200 dark:bg-slate-800 mx-1"></div>
 
-            <button onClick={() => setScale(1)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors" title="Reset Zoom">
+            <button onClick={() => setScale(1)} className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-gray-500 dark:text-gray-400" title="Reset Zoom">
                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
             </button>
-            <button onClick={toggleFullscreen} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors" title={isFullscreen ? "Exit Full Screen" : "Full Screen"}>
+            <button onClick={toggleFullscreen} className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-gray-500 dark:text-gray-400" title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
                {isFullscreen ? 
                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg> :
                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 4l-5-5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
                }
             </button>
-            <button onClick={handleDownload} className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded text-gray-500 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors" title="Download SVG">
+            <button onClick={handleDownload} className="p-1.5 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg text-gray-500 dark:text-gray-400" title="Download SVG">
                 <DownloadIcon />
             </button>
         </div>
 
-        {/* Viewport */}
-        <div className={`overflow-auto custom-scrollbar flex items-center justify-center ${isFullscreen ? 'w-full h-full' : 'w-full min-h-[300px]'}`}>
+        {/* Viewport wrapper */}
+        <div className={`overflow-auto flex items-center justify-center ${isFullscreen ? 'w-full h-full' : 'w-full min-h-[350px]'}`}>
             <div 
                ref={mermaidRef}
-               className="origin-center transition-all duration-200 ease-out p-8 flex justify-center"
+               className="origin-center transition-all duration-100 ease-out p-6 flex justify-center w-full"
                style={{ 
-                  width: `${scale * 100}%`,
-                  minWidth: '100%' 
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'center center'
                }}
             ></div>
         </div>
@@ -206,7 +203,6 @@ export const MarkdownRenderer: React.FC<{ content: string; className?: string }>
 
   useEffect(() => {
     if (ref.current) {
-      // Add copy buttons to code blocks
       const preElements = ref.current.querySelectorAll('pre');
       preElements.forEach((pre) => {
         if (pre.parentNode && !pre.parentNode.querySelector('.copy-btn')) {
@@ -216,7 +212,7 @@ export const MarkdownRenderer: React.FC<{ content: string; className?: string }>
           wrapper.appendChild(pre);
 
           const button = document.createElement('button');
-          button.className = 'copy-btn absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1 bg-gray-700/80 rounded text-xs text-white hover:bg-gray-600 backdrop-blur-sm z-10';
+          button.className = 'copy-btn absolute right-2.5 top-2.5 opacity-0 group-hover:opacity-100 transition-opacity px-2.5 py-1 bg-slate-800/80 hover:bg-slate-700/80 rounded-md text-xs text-slate-200 border border-slate-700/50 backdrop-blur-sm z-15';
           button.textContent = 'Copy';
           button.onclick = () => {
             const code = pre.querySelector('code')?.innerText || pre.innerText;
@@ -233,18 +229,7 @@ export const MarkdownRenderer: React.FC<{ content: string; className?: string }>
   return (
     <div 
       ref={ref}
-      className={`prose dark:prose-invert prose-sm max-w-none 
-        prose-headings:text-gray-900 dark:prose-headings:text-gray-200 prose-headings:font-semibold prose-headings:mt-6 prose-headings:mb-3
-        prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed
-        prose-a:text-blue-600 dark:prose-a:text-github-accent prose-a:no-underline hover:prose-a:underline
-        prose-code:text-gray-800 dark:prose-code:text-gray-200 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none
-        prose-pre:bg-gray-900 dark:prose-pre:bg-[#0d1117] prose-pre:border prose-pre:border-gray-700 dark:prose-pre:border-github-border prose-pre:p-4 prose-pre:rounded-md
-        prose-ul:list-disc prose-ul:pl-5 prose-ul:space-y-1
-        prose-ol:list-decimal prose-ol:pl-5
-        prose-blockquote:border-l-4 prose-blockquote:border-gray-300 dark:prose-blockquote:border-gray-600 prose-blockquote:pl-4 prose-blockquote:italic
-        prose-table:border-collapse prose-table:w-full prose-th:text-left prose-th:p-2 prose-td:p-2 prose-tr:border-b prose-tr:border-gray-200 dark:prose-tr:border-gray-800
-        transition-colors duration-300
-        ${className}`}
+      className={`markdown-content prose dark:prose-invert prose-sm max-w-none prose-headings:text-slate-900 dark:prose-headings:text-slate-100 prose-headings:font-bold prose-headings:mt-6 prose-headings:mb-3 prose-p:text-slate-700 dark:prose-p:text-slate-300 prose-p:leading-relaxed prose-a:text-cyan-600 dark:prose-a:text-cyan-400 prose-a:no-underline hover:prose-a:underline prose-code:text-cyan-600 dark:prose-code:text-cyan-400 prose-code:bg-slate-100 dark:prose-code:bg-slate-800/60 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md prose-code:before:content-none prose-code:after:content-none prose-pre:bg-slate-950 dark:prose-pre:bg-[#090d16] prose-pre:border prose-pre:border-slate-200 dark:prose-pre:border-slate-800 prose-pre:p-4.5 prose-pre:rounded-xl prose-ul:list-disc prose-ul:pl-5 prose-ul:space-y-1 prose-ol:list-decimal prose-ol:pl-5 prose-blockquote:border-l-4 prose-blockquote:border-slate-300 dark:prose-blockquote:border-slate-750 prose-blockquote:pl-4 prose-blockquote:italic prose-table:border-collapse prose-table:w-full prose-th:text-left prose-th:p-2.5 prose-td:p-2.5 prose-tr:border-b prose-tr:border-slate-150 dark:prose-tr:border-slate-850 transition-colors duration-300 ${className}`}
       dangerouslySetInnerHTML={{ __html: marked.parse(content || '') as string }}
     />
   );
@@ -261,26 +246,26 @@ export const DiffViewer: React.FC<{ original: string; modified: string }> = ({ o
 
   if (original === modified) {
     return (
-      <div className="flex flex-col items-center justify-center h-full text-gray-500 py-10 transition-colors duration-300">
-        <p className="text-sm">No changes detected from original.</p>
+      <div className="flex flex-col items-center justify-center py-12 text-slate-500">
+        <p className="text-sm italic">No code updates recommended for this file.</p>
       </div>
     );
   }
 
   return (
-    <div className="font-mono text-xs sm:text-sm overflow-auto custom-scrollbar transition-colors duration-300">
+    <div className="font-mono text-xs sm:text-sm overflow-auto custom-scrollbar border border-slate-200 dark:border-slate-800/80 rounded-xl p-3 bg-slate-950/20">
       {diffParts.map((part, index) => {
         let bgClass = '';
-        let textClass = 'text-gray-700 dark:text-gray-300';
+        let textClass = 'text-slate-700 dark:text-slate-300';
         let prefix = '  ';
         
         if (part.added) {
-          bgClass = 'bg-green-100 dark:bg-green-900/30 w-full block';
-          textClass = 'text-green-800 dark:text-green-200';
+          bgClass = 'bg-green-500/10 w-full block border-l-2 border-green-500';
+          textClass = 'text-green-600 dark:text-green-400';
           prefix = '+ ';
         } else if (part.removed) {
-          bgClass = 'bg-red-100 dark:bg-red-900/30 w-full block';
-          textClass = 'text-red-800 dark:text-red-200';
+          bgClass = 'bg-rose-500/10 w-full block border-l-2 border-rose-500';
+          textClass = 'text-rose-600 dark:text-rose-450';
           prefix = '- ';
         }
 
@@ -288,8 +273,8 @@ export const DiffViewer: React.FC<{ original: string; modified: string }> = ({ o
         return (
           <React.Fragment key={index}>
              {lines.map((line, lineIdx) => (
-                <div key={`${index}-${lineIdx}`} className={`${bgClass} px-2 whitespace-pre-wrap transition-colors duration-300`}>
-                  <span className={`select-none opacity-50 w-6 inline-block text-right mr-2 ${textClass}`}>{prefix}</span>
+                <div key={`${index}-${lineIdx}`} className={`${bgClass} px-3.5 py-0.5 whitespace-pre`}>
+                  <span className={`select-none opacity-40 w-5 inline-block text-right mr-3 font-semibold ${textClass}`}>{prefix}</span>
                   <span className={textClass}>{line}</span>
                 </div>
              ))}
@@ -303,70 +288,76 @@ export const DiffViewer: React.FC<{ original: string; modified: string }> = ({ o
 // --- CODE BLOCK ---
 export const CodeBlock: React.FC<{ code: string }> = ({ code }) => (
   <div className="relative group my-2">
-     <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+     <div className="absolute right-2.5 top-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
         <button 
           onClick={() => navigator.clipboard.writeText(code)}
-          className="px-2 py-1 bg-gray-700/80 rounded text-xs text-white hover:bg-gray-600 backdrop-blur-sm"
+          className="px-2.5 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white hover:bg-slate-750"
         >
-          Copy
+          Copy Code
         </button>
      </div>
-     <pre className="text-xs sm:text-sm bg-gray-900 dark:bg-[#050505] p-4 rounded-md border border-gray-700 dark:border-gray-800/50 overflow-x-auto text-gray-300 font-mono whitespace-pre leading-relaxed shadow-inner transition-colors duration-300">
+     <pre className="text-xs sm:text-sm bg-slate-950 p-4.5 rounded-xl border border-slate-200 dark:border-slate-800/80 overflow-x-auto text-slate-350 font-mono whitespace-pre leading-relaxed shadow-inner">
        <code>{code}</code>
      </pre>
   </div>
 );
 
 // --- PROGRESS BAR ---
-export const ProgressBar: React.FC<{ progress: number; color?: string }> = ({ progress, color = "bg-blue-500 dark:bg-github-accent" }) => (
-  <div className="w-full bg-gray-200 dark:bg-gray-800 rounded-full h-2.5 overflow-hidden transition-colors duration-300 shadow-inner">
-    <div 
-      className={`h-2.5 rounded-full ${color} transition-all duration-500 ease-out relative overflow-hidden`} 
-      style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+export const ProgressBar: React.FC<{ progress: number; color?: string }> = ({ progress, color = "bg-gradient-to-r from-cyan-500 to-blue-500" }) => (
+  <div className="w-full bg-slate-100 dark:bg-slate-900 rounded-full h-3 overflow-hidden shadow-inner border border-slate-200/20">
+    <motion.div 
+      className={`h-full rounded-full ${color} relative overflow-hidden`} 
+      initial={{ width: 0 }}
+      animate={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
     >
        {/* Shimmer effect */}
-       <div className="absolute inset-0 bg-white/30 w-full h-full animate-[shimmer_2s_infinite] -translate-x-full"></div>
-    </div>
-    <style dangerouslySetInnerHTML={{__html: `
-      @keyframes shimmer {
-        100% { transform: translateX(100%); }
-      }
-    `}} />
+       <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.2)_50%,transparent_100%)] w-full h-full animate-[shimmer_1.8s_infinite]"></div>
+    </motion.div>
   </div>
 );
 
 // --- LOADING STEP INDICATOR ---
 export const LoadingStep: React.FC<{ label: string; status: 'pending' | 'current' | 'completed'; index: number }> = ({ label, status, index }) => {
   return (
-    <div className={`flex items-center gap-3 py-2 transition-all duration-500 ${status === 'pending' ? 'opacity-40 translate-x-2' : 'opacity-100 translate-x-0'}`} style={{ transitionDelay: `${index * 50}ms` }}>
-       <div className="shrink-0 w-6 h-6 flex items-center justify-center transition-all duration-300">
+    <motion.div 
+      className={`flex items-center gap-3.5 py-2.5 border-b border-slate-100/50 dark:border-slate-900/30 last:border-b-0`}
+      initial={{ opacity: 0, x: -12 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.08 }}
+    >
+       <div className="shrink-0 w-6 h-6 flex items-center justify-center">
           {status === 'completed' && (
-             <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center animate-fade-in shadow-md shadow-green-500/20">
-                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-             </div>
+             <motion.div 
+               className="w-5 h-5 bg-gradient-to-tr from-emerald-400 to-green-500 rounded-full flex items-center justify-center shadow-lg shadow-green-500/20"
+               initial={{ scale: 0 }}
+               animate={{ scale: 1 }}
+               type="spring"
+             >
+                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3.5} d="M5 13l4 4L19 7" /></svg>
+             </motion.div>
           )}
           {status === 'current' && (
-             <div className="w-5 h-5 border-2 border-blue-500 dark:border-github-accent border-t-transparent rounded-full animate-spin"></div>
+             <div className="w-5 h-5 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
           )}
           {status === 'pending' && (
-             <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+             <div className="w-2.5 h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
           )}
        </div>
-       <span className={`text-sm font-medium transition-colors duration-300 ${status === 'current' ? 'text-gray-900 dark:text-white scale-105 origin-left' : 'text-gray-600 dark:text-gray-400'}`}>
+       <span className={`text-sm font-semibold transition-colors duration-300 ${status === 'current' ? 'text-cyan-500 dark:text-cyan-400 scale-[1.02] origin-left' : 'text-slate-650 dark:text-slate-450'}`}>
          {label}
        </span>
-    </div>
+    </motion.div>
   )
 };
 
-
 // --- CARDS & UI ---
-export const Card: React.FC<{ title: string; children: React.ReactNode; className?: string; headerClassName?: string; id?: string }> = ({ title, children, className = '', headerClassName = 'bg-gray-5 dark:bg-gray-900/50', id }) => (
-  <div id={id} className={`bg-white dark:bg-github-card border border-gray-200 dark:border-github-border rounded-lg overflow-hidden transition-colors duration-300 ${className}`}>
-    <div className={`px-6 py-4 border-b border-gray-200 dark:border-github-border transition-colors duration-300 ${headerClassName}`}>
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">{title}</h3>
+export const Card: React.FC<{ title: string; children: React.ReactNode; className?: string; headerClassName?: string; id?: string }> = ({ title, children, className = '', headerClassName = 'bg-slate-50/50 dark:bg-slate-950/20', id }) => (
+  <div id={id} className={`bg-white dark:bg-github-card border border-gray-200 dark:border-github-border rounded-xl overflow-hidden transition-all duration-300 hover:shadow-md ${className}`}>
+    <div className={`px-6 py-4 border-b border-gray-200 dark:border-github-border/70 ${headerClassName}`}>
+      <h3 className="text-base font-bold text-gray-900 dark:text-white">{title}</h3>
     </div>
-    <div className="p-0 text-gray-700 dark:text-gray-300 transition-colors duration-300">
+    <div className="p-0 text-slate-700 dark:text-slate-300">
       {children}
     </div>
   </div>
@@ -386,58 +377,76 @@ export const ContentCard: React.FC<{
   className = '', 
   collapsible = false,
   defaultExpanded = true,
-  headerClassName = 'bg-gray-5 dark:bg-gray-900/50',
+  headerClassName = 'bg-slate-50/50 dark:bg-slate-950/20',
   id
 }) => {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   return (
-    <div id={id} className={`bg-white dark:bg-github-card border border-gray-200 dark:border-github-border rounded-lg overflow-hidden shadow-sm dark:shadow-none transition-colors duration-300 ${className}`}>
+    <div id={id} className={`bg-white dark:bg-github-card border border-gray-200 dark:border-github-border/70 rounded-2xl overflow-hidden transition-all duration-350 hover:shadow-lg dark:hover:shadow-cyan-500/[0.01] ${className}`}>
       <div 
-        className={`px-6 py-4 border-b border-gray-200 dark:border-github-border transition-colors duration-300 ${headerClassName} flex justify-between items-center ${collapsible ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 select-none' : ''}`}
+        className={`px-6 py-4 border-b border-gray-200 dark:border-github-border/70 flex justify-between items-center ${headerClassName} ${collapsible ? 'cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-900/10 select-none' : ''}`}
         onClick={() => collapsible && setIsExpanded(!isExpanded)}
       >
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white transition-colors duration-300">{title}</h3>
+        <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">{title}</h3>
         {collapsible && (
-          <span className={`text-gray-500 dark:text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`}>
-             <ChevronDown />
-          </span>
+          <motion.span 
+            className="text-slate-400"
+            animate={{ rotate: isExpanded ? 180 : 0 }}
+            transition={{ duration: 0.25 }}
+          >
+             <ChevronDownIcon className="w-4 h-4" />
+          </motion.span>
         )}
       </div>
-      {(!collapsible || isExpanded) && (
-        <div className="p-6 text-gray-700 dark:text-gray-300 animate-fade-in transition-colors duration-300">
-          {children}
-        </div>
-      )}
+      
+      <AnimatePresence initial={false}>
+        {(!collapsible || isExpanded) && (
+          <motion.div
+            initial={collapsible ? { height: 0, opacity: 0 } : false}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+          >
+            <div className="p-6 text-slate-700 dark:text-slate-350">
+              {children}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
-export const Badge: React.FC<{ text: string; color?: string }> = ({ text, color = "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200 dark:border-blue-800" }) => (
-  <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium border mr-2 mb-2 transition-colors duration-300 ${color}`}>
+export const Badge: React.FC<{ text: string; color?: string }> = ({ text, color = "bg-blue-50 text-blue-700 border-blue-200/50 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-900/40" }) => (
+  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border mr-2 mb-2 transition-all hover:scale-105 duration-200 ${color}`}>
     {text}
   </span>
 );
 
 export const SecurityItem: React.FC<{ vuln: Vulnerability }> = ({ vuln }) => {
   const colorMap = {
-    'High': 'text-red-700 dark:text-red-400 border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20',
-    'Medium': 'text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-900/20',
-    'Low': 'text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/50 bg-yellow-50 dark:bg-yellow-900/20',
+    'High': 'text-red-700 dark:text-red-400 border-red-200 dark:border-red-900/40 bg-red-50/50 dark:bg-red-950/10',
+    'Medium': 'text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-900/40 bg-orange-50/50 dark:bg-orange-950/10',
+    'Low': 'text-yellow-750 dark:text-yellow-450 border-yellow-200 dark:border-yellow-900/40 bg-yellow-50/50 dark:bg-yellow-950/10',
   };
   
   const badgeClass = colorMap[vuln.severity] || colorMap['Low'];
 
   return (
-    <div className="mb-3 last:mb-0 border border-gray-200 dark:border-github-border rounded p-3 bg-gray-50 dark:bg-github-dark/50 transition-colors duration-300">
-      <div className="flex items-center justify-between mb-1">
-         <span className="font-medium text-gray-800 dark:text-gray-200 text-sm transition-colors duration-300">{vuln.title}</span>
-         <span className={`text-xs px-2 py-0.5 rounded border transition-colors duration-300 ${badgeClass}`}>
+    <motion.div 
+      className={`mb-3.5 last:mb-0 border border-gray-200 dark:border-github-border rounded-xl p-3.5 bg-gray-50/50 dark:bg-github-dark/25 hover:scale-[1.01] transition-transform`}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="flex items-center justify-between mb-1.5">
+         <span className="font-semibold text-gray-800 dark:text-gray-200 text-sm">{vuln.title}</span>
+         <span className={`text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full border ${badgeClass}`}>
             {vuln.severity.toUpperCase()}
          </span>
       </div>
-      <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed transition-colors duration-300">{vuln.description}</p>
-    </div>
+      <p className="text-xs text-gray-500 dark:text-slate-400 leading-relaxed">{vuln.description}</p>
+    </motion.div>
   );
 };
-

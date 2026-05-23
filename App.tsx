@@ -77,7 +77,7 @@ const App: React.FC = () => {
       let messages = [];
       if (analysisMode === 'archaeologist') {
         messages = [
-          "Gemini is reading the monolith...",
+          "AI is reading the monolith...",
           "Identifying spaghetti code...",
           "Mapping dependency graph...",
           "Generating microservices roadmap...",
@@ -218,7 +218,7 @@ const App: React.FC = () => {
       )}
       
       {/* Other Content - Containerized */}
-      <main className="container mx-auto px-4 py-12">
+      <main className="container mx-auto px-4 py-12 max-w-7xl">
         {currentView === 'about' ? (
            <AboutPage />
         ) : currentView === 'blast-radius' && repoInfo && repoFiles.length > 0 ? (
@@ -236,38 +236,36 @@ const App: React.FC = () => {
                     <div className="text-center mb-8">
                        <button 
                          onClick={() => setAnalysisMode(null)} 
-                         className="group mb-8 flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-github-card border border-gray-200 dark:border-github-border rounded-full text-sm font-medium text-gray-600 dark:text-gray-300 hover:border-blue-400 dark:hover:border-github-accent hover:text-blue-600 dark:hover:text-github-accent hover:shadow-md transition-all duration-300 mx-auto"
+                         className="group mb-8 flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-[#161b22]/50 hover:bg-slate-50 dark:hover:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-full text-xs font-bold text-slate-700 dark:text-slate-350 hover:shadow-sm transition-all duration-300 mx-auto"
                        >
-                         <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                         Choose a different mode
+                         <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-1 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                         <span>Choose a different mode</span>
                        </button>
 
                        {/* Robot Icon */}
                        <div className="flex justify-center mb-6">
-                          <div className={`relative group p-4 rounded-full bg-gradient-to-br ${
+                          <div className={`relative group p-4.5 rounded-3xl bg-slate-100 dark:bg-slate-900 border ${
                               analysisMode === 'basic' 
-                              ? 'from-blue-500/10 to-green-500/10 dark:from-blue-500/20 dark:to-green-500/20' 
-                              : 'from-orange-500/10 to-red-500/10 dark:from-orange-500/20 dark:to-red-500/20'
-                          } ring-1 ${
-                              analysisMode === 'basic' ? 'ring-blue-200 dark:ring-blue-800' : 'ring-orange-200 dark:ring-orange-800'
+                              ? 'border-blue-500/20' 
+                              : 'border-orange-500/20'
                           }`}>
-                              <div className={`absolute inset-0 rounded-full blur opacity-40 group-hover:opacity-60 transition-opacity duration-500 ${
+                              <div className={`absolute inset-0 rounded-3xl blur opacity-30 group-hover:opacity-50 transition-opacity duration-500 ${
                                   analysisMode === 'basic' ? 'bg-blue-400' : 'bg-orange-400'
                               }`}></div>
                               
                               {/* Robot SVG */}
                               <svg 
-                                  className={`w-16 h-16 relative z-10 transition-transform duration-500 group-hover:scale-110 ${
-                                      analysisMode === 'basic' ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'
+                                  className={`w-14 h-14 relative z-10 transition-transform duration-500 group-hover:scale-105 ${
+                                      analysisMode === 'basic' ? 'text-blue-500' : 'text-orange-500'
                                   }`} 
                                   viewBox="0 0 24 24" 
                                   fill="none" 
                                   stroke="currentColor" 
                                   strokeWidth="1.5"
                               >
-                                   <rect x="5" y="8" width="14" height="12" rx="2" strokeLinecap="round" strokeLinejoin="round" />
+                                   <rect x="5" y="8" width="14" height="12" rx="2.5" strokeLinecap="round" strokeLinejoin="round" />
                                    <path d="M12 8V4" strokeLinecap="round" strokeLinejoin="round" />
-                                   <circle cx="12" cy="3" r="1" strokeLinecap="round" strokeLinejoin="round" />
+                                   <circle cx="12" cy="3" r="1.2" fill="currentColor" stroke="none" />
                                    {/* Eyes */}
                                    <circle cx="9" cy="13" r="1.5" fill="currentColor" stroke="none" />
                                    <circle cx="15" cy="13" r="1.5" fill="currentColor" stroke="none" />
@@ -279,18 +277,18 @@ const App: React.FC = () => {
                           </div>
                        </div>
 
-                       <h2 className={`text-4xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r ${
+                       <h2 className={`text-3xl sm:text-4xl font-extrabold mb-3 bg-clip-text text-transparent bg-gradient-to-r ${
                           analysisMode === 'basic'
-                          ? 'from-blue-600 to-green-500 dark:from-blue-400 dark:to-green-400'
-                          : 'from-orange-600 to-red-500 dark:from-orange-400 dark:to-red-400'
+                          ? 'from-blue-600 via-cyan-500 to-blue-600 dark:from-blue-400 dark:via-cyan-400 dark:to-blue-400'
+                          : 'from-orange-600 via-rose-500 to-orange-600 dark:from-orange-400 dark:via-rose-450 dark:to-orange-400'
                        }`}>
-                         {analysisMode === 'basic' ? 'Analyze Repository' : 'Legacy Code Excavation'}
+                          {analysisMode === 'basic' ? 'Analyze Repository' : 'Legacy Code Excavation'}
                        </h2>
                        
-                       <p className="text-lg text-gray-600 dark:text-gray-300 max-w-lg mx-auto leading-relaxed">
-                         {analysisMode === 'basic' 
-                            ? 'unlock instant architecture diagrams, security scans, and a complete project summary.' 
-                            : 'Paste the link to an old project to find hidden problems, risks, and a clear plan for cleaning it up.'}
+                       <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400 max-w-md mx-auto leading-relaxed font-light">
+                          {analysisMode === 'basic' 
+                             ? 'Paste the repo URL to produce modular code summaries, Mermaid architecture flowcharts, and technical audits.' 
+                             : 'Investigate complex, legacy, or monolithic repositories to target technical debt and blueprint modernization roadmaps.'}
                        </p>
                     </div>
                     <RepoForm 
@@ -305,16 +303,16 @@ const App: React.FC = () => {
               {/* Loading State with Progress Steps */}
               {(status === AnalysisStatus.FETCHING_REPO || status === AnalysisStatus.ANALYZING_AI) && (
                 <div className="max-w-md mx-auto animate-fade-in">
-                   <div className="bg-white dark:bg-github-card border border-gray-200 dark:border-github-border rounded-xl p-8 shadow-xl">
+                   <div className="bg-white dark:bg-github-card border border-slate-200 dark:border-slate-800/80 rounded-2xl p-8 shadow-lg">
                       <div className="flex flex-col items-center mb-8">
-                         <div className="relative">
-                            <div className={`w-16 h-16 border-4 ${analysisMode === 'archaeologist' ? 'border-orange-200 dark:border-orange-900' : 'border-blue-200 dark:border-blue-900'} rounded-full mb-4`}></div>
-                            <div className={`absolute top-0 left-0 w-16 h-16 border-4 ${analysisMode === 'archaeologist' ? 'border-orange-500' : 'border-blue-600 dark:border-github-accent'} border-t-transparent rounded-full animate-spin`}></div>
+                         <div className="relative mb-5">
+                            <div className={`w-14 h-14 border-4 ${analysisMode === 'archaeologist' ? 'border-orange-200 dark:border-orange-950' : 'border-blue-200 dark:border-blue-950'} rounded-full`}></div>
+                            <div className={`absolute top-0 left-0 w-14 h-14 border-4 ${analysisMode === 'archaeologist' ? 'border-orange-500' : 'border-blue-500 dark:border-cyan-500'} border-t-transparent rounded-full animate-spin`}></div>
                          </div>
-                         <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-                            {status === AnalysisStatus.ANALYZING_AI ? 'Analyzing Repository' : 'Scanning Repository'}
+                         <h3 className="text-base font-bold text-slate-800 dark:text-white mb-1">
+                            {status === AnalysisStatus.ANALYZING_AI ? 'AI Analysis Active' : 'Scanning Repository'}
                          </h3>
-                         <p className="text-sm text-gray-500 dark:text-gray-400 text-center min-h-[20px] animate-pulse">
+                         <p className="text-xs text-slate-500 dark:text-slate-400 text-center min-h-[16px] animate-pulse">
                             {loadingMessage}
                          </p>
                       </div>
@@ -331,11 +329,11 @@ const App: React.FC = () => {
                       </div>
 
                       <div className="w-full">
-                         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
-                            <span>Progress</span>
+                         <div className="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                            <span>Analysis Flow</span>
                             <span>{Math.round(loadingProgress)}%</span>
                          </div>
-                         <ProgressBar progress={loadingProgress} color={analysisMode === 'archaeologist' ? 'bg-orange-500' : 'bg-blue-600 dark:bg-github-accent'} />
+                         <ProgressBar progress={loadingProgress} color={analysisMode === 'archaeologist' ? 'bg-orange-500' : 'bg-cyan-500'} />
                       </div>
                    </div>
                 </div>
@@ -343,26 +341,26 @@ const App: React.FC = () => {
 
               {/* Error State */}
               {status === AnalysisStatus.ERROR && error && (
-                <div className="max-w-2xl mx-auto bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-500/50 rounded-lg p-6 text-center animate-fade-in">
-                   <h3 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2">Analysis Failed</h3>
+                <div className="max-w-2xl mx-auto bg-red-500/5 border border-red-500/20 rounded-2xl p-8 text-center animate-fade-in">
+                   <h3 className="text-xl font-bold text-red-500 mb-2">Analysis Failed</h3>
                    
                    {failedStep && (
-                     <div className="inline-block mb-4 border-b border-red-500/30 pb-1">
-                       <span className="text-xs font-semibold text-red-500 dark:text-red-300/70 uppercase tracking-widest">
+                     <div className="inline-block mb-4 border-b border-red-500/20 pb-1">
+                       <span className="text-[10px] font-bold text-red-500/80 uppercase tracking-widest">
                          Failed Step: {failedStep}
                        </span>
                      </div>
                    )}
 
-                   <p className="text-gray-700 dark:text-gray-300">{error}</p>
+                   <p className="text-sm text-slate-655 dark:text-slate-350 leading-relaxed font-mono">{error}</p>
                    {showTokenHint && (
-                      <p className="text-yellow-700 dark:text-yellow-400 text-sm mt-2 max-w-lg mx-auto bg-yellow-50 dark:bg-yellow-900/10 p-2 rounded border border-yellow-200 dark:border-yellow-900/30">
-                          <strong>Tip:</strong> Create a <a href="https://github.com/settings/tokens" target="_blank" rel="noreferrer" className="underline hover:text-yellow-600 dark:hover:text-yellow-300">Personal Access Token</a> and paste it below.
+                      <p className="text-amber-500 text-xs mt-3 max-w-lg mx-auto bg-amber-500/5 p-3 rounded-xl border border-amber-550/20 leading-relaxed">
+                          <strong>GitHub Rate Limit Tip:</strong> Create a <a href="https://github.com/settings/tokens" target="_blank" rel="noreferrer" className="underline hover:text-amber-400 font-bold">Personal Access Token</a> and paste it above to unlock higher analysis limits.
                       </p>
                    )}
                    <button 
                      onClick={() => setStatus(AnalysisStatus.IDLE)}
-                     className="mt-6 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+                     className="mt-6 px-5 py-2.5 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 text-xs font-bold rounded-xl transition-all"
                    >
                      Try Again
                    </button>
@@ -371,32 +369,32 @@ const App: React.FC = () => {
 
               {/* Results */}
               {status === AnalysisStatus.COMPLETE && repoInfo && analysis && (
-                <div>
-                  <div className="mb-6 flex justify-between items-center flex-wrap gap-4">
+                <div className="space-y-6">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-2">
                     <button
                       onClick={resetAnalysis}
-                      className="flex items-center gap-2 text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
+                      className="flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-                      Analyze another repository
+                      <svg className="w-4 h-4 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                      <span>Analyze another repository</span>
                     </button>
                     
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 w-full sm:w-auto shrink-0 justify-end">
                       <button
                         onClick={() => setCurrentView('blast-radius')}
-                        className="group px-4 py-2 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600 text-white rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+                        className="group px-4 py-2.5 bg-gradient-to-r from-red-550 to-orange-550 text-white rounded-xl text-xs font-bold shadow-md shadow-red-500/10 hover:shadow-lg transition-all duration-300 flex items-center gap-1.5"
                       >
-                        <span className="text-lg">💥</span>
+                        <span className="text-sm">💥</span>
                         <span>Blast Radius Analysis</span>
-                        <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                         </svg>
                       </button>
                       
-                      <span className={`text-xs font-medium px-3 py-1 rounded-full border ${
+                      <span className={`text-[10px] font-bold px-3 py-1 rounded-full border ${
                         analysisMode === 'archaeologist'
-                          ? 'bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-900/50'
-                          : 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900/50'
+                          ? 'bg-orange-500/10 text-orange-550 border-orange-500/20'
+                          : 'bg-blue-500/10 text-blue-500 border-blue-500/20'
                       }`}>
                         {analysisMode === 'archaeologist' ? 'ARCHAEOLOGIST MODE' : 'BASIC MODE'}
                       </span>
@@ -432,10 +430,10 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="border-t border-gray-200 dark:border-github-border mt-20 py-8 text-center text-gray-500 text-sm">
+      <footer className="border-t border-slate-200 dark:border-slate-800 mt-20 py-8 text-center text-slate-500 text-xs font-light space-y-1">
         <p>&copy; {new Date().getFullYear()} CodePulse AI. Not affiliated with GitHub.</p>
         {rateLimit && (
-           <p className="text-xs text-gray-600 mt-2 font-mono">
+           <p className="text-[10px] text-slate-450 mt-1 font-mono">
              API Quota: {rateLimit.remaining}/{rateLimit.limit} • Resets {rateLimit.reset.toLocaleTimeString()}
            </p>
         )}
@@ -445,4 +443,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

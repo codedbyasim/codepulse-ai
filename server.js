@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import axios from 'axios';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
 const PORT = 3001;
@@ -11,21 +14,29 @@ app.use(express.json({ limit: '50mb' }));
 // Gemini / AIML API configuration
 const GEMINI_CONFIG = {
   apiKey: process.env.GOOGLE_GEMINI_API_KEY,
-  modelId: process.env.GOOGLE_GEMINI_MODEL_ID || 'gemini-2.0-flash',
+  modelId: process.env.GOOGLE_GEMINI_MODEL_ID || 'gemini-2.5-flash',
   url: 'https://generativelanguage.googleapis.com/v1beta/models'
 };
 
 // AIML API (third-party) configuration - when present we'll prefer AIML as a proxy
 const AIML_CONFIG = {
   apiKey: process.env.AIMLAPI_KEY,
-  url: process.env.AIMLAPI_URL || 'https://aimlapi.com',
-  model: process.env.AIMLAPI_MODEL || 'gemini-2.0-flash'
+  url: process.env.AIMLAPI_URL?.replace(/\/$/, '') || 'https://api.aimlapi.com',
+  model: process.env.AIMLAPI_MODEL || 'google/gemini-2.5-flash'
 };
+
+console.log('🔧 Loaded server configuration:', {
+  aimlEnabled: !!AIML_CONFIG.apiKey,
+  aimlUrl: AIML_CONFIG.url,
+  aimlModel: AIML_CONFIG.model,
+  geminiEnabled: !!GEMINI_CONFIG.apiKey,
+  geminiModel: GEMINI_CONFIG.modelId
+});
 
 // Proxy endpoint for Gemini text generation (supports AIML proxy if configured)
 app.post('/api/gemini/generate', async (req, res) => {
   try {
-    const { prompt, maxTokens = 2000 } = req.body;
+    const { prompt, maxTokens = 2000, responseType = 'text' } = req.body;
 
     if (!prompt) {
       return res.status(400).json({ error: 'Prompt is required' });
@@ -35,14 +46,30 @@ app.post('/api/gemini/generate', async (req, res) => {
     if (AIML_CONFIG.apiKey) {
       console.log('🤖 Calling AIML API proxy...');
       try {
+        const baseUrl = AIML_CONFIG.url.replace(/\/$/, '');
+        const endpoint = baseUrl.endsWith('/v1') 
+          ? `${baseUrl}/chat/completions` 
+          : `${baseUrl}/v1/chat/completions`;
+
+        const payload = {
+          model: AIML_CONFIG.model,
+          messages: [
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          max_tokens: maxTokens,
+          temperature: 0.3
+        };
+
+        if (responseType === 'json') {
+          payload.response_format = { type: 'json_object' };
+        }
+
         const aimlResp = await axios.post(
-          `${AIML_CONFIG.url.replace(/\/$/, '')}/generate`,
-          {
-            model: AIML_CONFIG.model,
-            prompt,
-            max_output_tokens: maxTokens,
-            temperature: 0.3
-          },
+          endpoint,
+          payload,
           {
             headers: {
               'Content-Type': 'application/json',
@@ -56,6 +83,7 @@ app.post('/api/gemini/generate', async (req, res) => {
 
         // Try several common response shapes
         const textCandidate =
+          aimlResp.data?.choices?.[0]?.message?.content ||
           aimlResp.data?.text ||
           aimlResp.data?.generated_text ||
           aimlResp.data?.output?.[0]?.text ||
@@ -79,20 +107,32 @@ app.post('/api/gemini/generate', async (req, res) => {
       });
     }
 
-    console.log('🤖 Calling Google Gemini API...');
+    console.log('🤖 Calling Google AI endpoint...');
+
+    const generationConfig = {
+      temperature: 0.3,
+      maxOutputTokens: maxTokens,
+      topP: 0.95,
+      topK: 40
+    };
+
+    if (responseType === 'json') {
+      generationConfig.responseMimeType = "application/json";
+    }
 
     const response = await axios.post(
       `${GEMINI_CONFIG.url}/${GEMINI_CONFIG.modelId}:generateContent?key=${GEMINI_CONFIG.apiKey}`,
       {
-        instances: [
+        contents: [
           {
-            content: prompt
+            parts: [
+              {
+                text: prompt
+              }
+            ]
           }
         ],
-        temperature: 0.3,
-        maxOutputTokens: maxTokens,
-        topP: 0.95,
-        topK: 40
+        generationConfig
       },
       {
         headers: {
@@ -102,13 +142,13 @@ app.post('/api/gemini/generate', async (req, res) => {
       }
     );
 
-    console.log('✅ Gemini API response received');
+    console.log('✅ Google AI response received');
 
     const candidate = response.data.candidates?.[0] || {};
     const generatedText =
+      candidate?.content?.parts?.[0]?.text ||
       candidate?.content?.[0]?.text ||
       candidate?.output?.[0]?.content ||
-      candidate?.content?.parts?.[0]?.text ||
       candidate?.content ||
       '';
     res.json({ text: generatedText });
@@ -274,13 +314,13 @@ app.post('/api/blast-radius/clear-cache', async (req, res) => {
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'CodePulse AI Gemini Proxy' });
+  res.json({ status: 'ok', service: 'CodePulse AI API Proxy' });
 });
 
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
   app.listen(PORT, () => {
-    console.log(`🚀 CodePulse AI Gemini Proxy running on http://localhost:${PORT}`);
-    console.log(`📡 Gemini Model: ${GEMINI_CONFIG.modelId}`);
+    console.log(`🚀 CodePulse AI proxy running on http://localhost:${PORT}`);
+    console.log(`📡 AI model: ${GEMINI_CONFIG.modelId}`);
   });
 }
 

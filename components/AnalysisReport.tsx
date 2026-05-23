@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { RepoInfo, AnalysisResult, FileContent } from '../types';
 import { DownloadIcon, ShieldCheckIcon, ContentCard, Badge, SecurityItem, MermaidDiagram, MarkdownRenderer } from './SharedUI';
 import { FileExplorer } from './FileExplorer';
+import { Star, GitBranch, Terminal, Shield, Cpu, Layout, FileText, Download } from 'lucide-react';
 
 interface AnalysisReportProps {
   repoInfo: RepoInfo;
@@ -51,150 +53,203 @@ ${analysis.notes}
     URL.revokeObjectURL(url);
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 15 } }
+  };
+
   return (
-     <div className="space-y-8 animate-fade-in-up">
-        {/* Repo Header Info */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-200 dark:border-github-border">
-        <div>
-          <a href={repoInfo.url} target="_blank" rel="noreferrer" className="text-2xl font-bold text-blue-600 dark:text-github-accent hover:underline break-all">
-            {repoInfo.owner}/{repoInfo.name}
-          </a>
-          <p className="text-gray-600 dark:text-gray-400 mt-1 text-lg">{repoInfo.description || "No description provided."}</p>
+     <motion.div 
+       className="space-y-8"
+       variants={containerVariants}
+       initial="hidden"
+       animate="visible"
+     >
+      {/* Repo Header Info Banner */}
+      <motion.div 
+        variants={cardVariants}
+        className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-gray-200 dark:border-github-border/70"
+      >
+        <div className="space-y-2">
+          <div className="flex items-center gap-3 flex-wrap">
+            <a 
+              href={repoInfo.url} 
+              target="_blank" 
+              rel="noreferrer" 
+              className="text-3xl font-extrabold bg-gradient-to-r from-cyan-600 to-blue-600 dark:from-cyan-400 dark:to-blue-500 text-transparent bg-clip-text hover:underline break-all"
+            >
+              {repoInfo.owner}/{repoInfo.name}
+            </a>
+            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-350 border border-slate-200 dark:border-slate-800">
+              public
+            </span>
+          </div>
+          <p className="text-gray-600 dark:text-slate-400 text-base max-w-3xl leading-relaxed">{repoInfo.description || "No description provided."}</p>
         </div>
-        <div className="flex flex-col items-end gap-2 shrink-0">
-          <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-            <div className="flex items-center gap-1">
-              <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-              </svg>
-              <span>{repoInfo.stars.toLocaleString()}</span>
+        
+        <div className="flex flex-col sm:flex-row md:flex-col items-start sm:items-center md:items-end gap-3 shrink-0">
+          <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-50 dark:bg-gray-800/40 border border-gray-200/50 dark:border-gray-850">
+              <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+              <span className="font-bold text-gray-700 dark:text-gray-300">{repoInfo.stars.toLocaleString()}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <span className="w-3 h-3 rounded-full bg-green-600 dark:bg-github-button inline-block"></span>
-              <span>{repoInfo.language || 'Unknown'}</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-50 dark:bg-gray-800/40 border border-gray-200/50 dark:border-gray-850">
+              <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 inline-block animate-pulse"></span>
+              <span className="font-semibold text-gray-700 dark:text-gray-300">{repoInfo.language || 'Codebase'}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
-              <span>{repoInfo.defaultBranch}</span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-50 dark:bg-gray-800/40 border border-gray-200/50 dark:border-gray-850">
+              <GitBranch className="w-4 h-4 text-slate-400" />
+              <span className="font-semibold text-gray-700 dark:text-gray-300">{repoInfo.defaultBranch}</span>
             </div>
           </div>
           
-          <button 
+          <motion.button 
             onClick={handleDownload}
-            className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-github-card hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-300 dark:border-github-border rounded text-sm text-gray-700 dark:text-gray-300 transition-colors shadow-sm dark:shadow-none"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-github-card hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-github-border rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 transition-colors shadow-sm"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
-            <DownloadIcon />
-            Export MD
-          </button>
+            <Download className="w-4 h-4 text-cyan-500" />
+            <span>Export Report (Markdown)</span>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Content (Left 2 cols) */}
+        
+        {/* Main Content Pane (Left 2 columns) */}
         <div className="lg:col-span-2 space-y-8">
           
-          <ContentCard title="System Diagrams" collapsible>
-            <div className="flex gap-2 mb-4 border-b border-gray-200 dark:border-github-border pb-1">
-               <button 
-                  onClick={() => setActiveDiagram('class')}
-                  className={`px-3 py-1 text-sm rounded-t-md border-t border-l border-r ${activeDiagram === 'class' ? 'bg-gray-100 dark:bg-[#0d1117] border-gray-200 dark:border-github-border text-gray-900 dark:text-white font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-               >
-                 Class Diagram
-               </button>
-               <button 
-                  onClick={() => setActiveDiagram('seq')}
-                  className={`px-3 py-1 text-sm rounded-t-md border-t border-l border-r ${activeDiagram === 'seq' ? 'bg-gray-100 dark:bg-[#0d1117] border-gray-200 dark:border-github-border text-gray-900 dark:text-white font-medium' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-               >
-                 Sequence Flow
-               </button>
-            </div>
+          <motion.div variants={cardVariants}>
+            <ContentCard title="System Architecture Diagrams" collapsible>
+              <div className="flex gap-2 mb-5 border-b border-slate-200 dark:border-slate-800/80 pb-0.5">
+                 <button 
+                    onClick={() => setActiveDiagram('class')}
+                    className={`px-4 py-2 text-sm font-semibold rounded-t-xl border-t border-l border-r -mb-px transition-colors ${activeDiagram === 'class' ? 'bg-slate-50 dark:bg-[#0d1117]/60 border-slate-200 dark:border-slate-800/80 text-cyan-600 dark:text-cyan-400' : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
+                 >
+                   Class Diagram & Interfaces
+                 </button>
+                 <button 
+                    onClick={() => setActiveDiagram('seq')}
+                    className={`px-4 py-2 text-sm font-semibold rounded-t-xl border-t border-l border-r -mb-px transition-colors ${activeDiagram === 'seq' ? 'bg-slate-50 dark:bg-[#0d1117]/60 border-slate-200 dark:border-slate-800/80 text-cyan-600 dark:text-cyan-400' : 'border-transparent text-slate-400 hover:text-slate-600 dark:hover:text-slate-200'}`}
+                 >
+                   Sequence Control Flow
+                 </button>
+              </div>
 
-            <div className="flex justify-center bg-gray-50 dark:bg-[#0d1117] p-2 rounded border border-gray-200 dark:border-github-border min-h-[200px]">
-               {activeDiagram === 'class' && (
-                 analysis.classDiagram ? <MermaidDiagram chart={analysis.classDiagram} /> : <div className="text-gray-500 italic p-10">No class diagram generated.</div>
-               )}
-               {activeDiagram === 'seq' && (
-                 analysis.sequenceDiagram ? <MermaidDiagram chart={analysis.sequenceDiagram} /> : <div className="text-gray-500 italic p-10">No sequence diagram generated.</div>
-               )}
-            </div>
-            <p className="text-xs text-center text-gray-500 mt-2">
-               {activeDiagram === 'class' ? 'Key classes and interface relationships.' : 
-                'Typical control flow sequence.'}
-            </p>
-          </ContentCard>
-
-          <ContentCard title="Project Summary" collapsible>
-            <p className="leading-relaxed text-gray-800 dark:text-gray-200 text-lg">
-              {analysis.summary}
-            </p>
-          </ContentCard>
-
-          <ContentCard title="Installation & Usage" collapsible>
-             <div className="p-4 bg-gray-50 dark:bg-github-dark/50 rounded-lg border border-gray-100 dark:border-transparent">
-                <MarkdownRenderer content={analysis.installation} />
-             </div>
-          </ContentCard>
-          
-           <ContentCard title="Developer Notes" collapsible>
-            <p className="leading-relaxed whitespace-pre-line text-gray-700 dark:text-gray-300">
-              {analysis.notes}
-            </p>
-          </ContentCard>
-        </div>
-
-        {/* Sidebar (Right 1 col) */}
-        <div className="space-y-8">
-          <ContentCard title="Tech Stack">
-            <div className="flex flex-wrap">
-              {analysis.techStack.length > 0 ? (
-                analysis.techStack.map((tech, i) => <Badge key={i} text={tech} />)
-              ) : (
-                <span className="text-gray-500 italic">No specific tech stack detected.</span>
-              )}
-            </div>
-          </ContentCard>
-
-          <ContentCard title="Key Components">
-            <ul className="space-y-2">
-              {analysis.keyComponents.map((comp, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-                   <svg className="w-5 h-5 text-blue-500 dark:text-github-accent shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                   <span>{comp}</span>
-                </li>
-              ))}
-            </ul>
-          </ContentCard>
-
-          <ContentCard title="Security & Code Quality" className="border-l-4 border-l-blue-600">
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 leading-relaxed italic border-b border-gray-200 dark:border-github-border pb-3">
-                 {analysis.securityProfile || "General security assessment."}
+              <div className="rounded-xl overflow-hidden shadow-inner bg-slate-50/50 dark:bg-slate-900/10 p-2">
+                 <AnimatePresence mode="wait">
+                   <motion.div
+                     key={activeDiagram}
+                     initial={{ opacity: 0, y: 10 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     exit={{ opacity: 0, y: -10 }}
+                     transition={{ duration: 0.2 }}
+                   >
+                     {activeDiagram === 'class' && (
+                       analysis.classDiagram ? <MermaidDiagram chart={analysis.classDiagram} /> : <div className="text-slate-400 italic p-12 text-center text-sm">No class diagram generated.</div>
+                     )}
+                     {activeDiagram === 'seq' && (
+                       analysis.sequenceDiagram ? <MermaidDiagram chart={analysis.sequenceDiagram} /> : <div className="text-slate-400 italic p-12 text-center text-sm">No sequence diagram generated.</div>
+                     )}
+                   </motion.div>
+                 </AnimatePresence>
+              </div>
+              <p className="text-xs text-center text-slate-450 mt-3 flex items-center justify-center gap-1.5">
+                 <Layout className="w-3.5 h-3.5" />
+                 <span>{activeDiagram === 'class' ? 'Class diagram maps files, types, and system interface boundaries.' : 'Sequence diagram tracks control flow propagation.'}</span>
               </p>
-            </div>
-            
-            {analysis.vulnerabilities && analysis.vulnerabilities.length > 0 ? (
-               <div className="space-y-2">
-                 <h4 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Detected Issues</h4>
-                 {analysis.vulnerabilities.map((vuln, i) => (
-                   <SecurityItem key={i} vuln={vuln} />
-                 ))}
-               </div>
-            ) : (
-               <div className="flex items-center gap-2 text-green-700 dark:text-green-400 text-sm bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-900/30 p-3 rounded">
-                  <ShieldCheckIcon />
-                  <span>No high-risk vulnerabilities detected in scanned files.</span>
-               </div>
-            )}
-          </ContentCard>
+            </ContentCard>
+          </motion.div>
+
+          <motion.div variants={cardVariants}>
+            <ContentCard title="AI Project Summary" collapsible>
+              <p className="leading-relaxed text-slate-700 dark:text-slate-300 text-base font-normal">
+                {analysis.summary}
+              </p>
+            </ContentCard>
+          </motion.div>
+
+          <motion.div variants={cardVariants}>
+            <ContentCard title="Installation & Executing Guide" collapsible>
+              <div className="p-4 bg-slate-50 dark:bg-slate-950/20 rounded-xl border border-slate-100 dark:border-slate-900/30">
+                 <MarkdownRenderer content={analysis.installation} />
+              </div>
+            </ContentCard>
+          </motion.div>
+          
+          <motion.div variants={cardVariants}>
+             <ContentCard title="Technical Developer Notes" collapsible>
+              <p className="leading-relaxed whitespace-pre-line text-slate-700 dark:text-slate-300 text-sm font-normal">
+                {analysis.notes}
+              </p>
+            </ContentCard>
+          </motion.div>
         </div>
 
-        {/* File Explorer */}
-        <div className="col-span-1 lg:col-span-3">
-          <FileExplorer repoInfo={repoInfo} structure={structure} files={files} />
+        {/* Sidebar Info Panel (Right 1 column) */}
+        <div className="space-y-8">
+          
+          <motion.div variants={cardVariants}>
+            <ContentCard title="Technologies & Frameworks">
+              <div className="flex flex-wrap p-1">
+                {analysis.techStack.length > 0 ? (
+                  analysis.techStack.map((tech, i) => <Badge key={i} text={tech} />)
+                ) : (
+                  <span className="text-slate-400 italic text-sm">No stack identified.</span>
+                )}
+              </div>
+            </ContentCard>
+          </motion.div>
+
+          <motion.div variants={cardVariants}>
+            <ContentCard title="System Components">
+              <ul className="space-y-3">
+                {analysis.keyComponents.map((comp, i) => (
+                  <li key={i} className="flex items-start gap-2.5 text-sm text-slate-700 dark:text-slate-300">
+                     <Cpu className="w-5 h-5 text-cyan-500 shrink-0 mt-0.5" />
+                     <span className="font-medium leading-tight">{comp}</span>
+                  </li>
+                ))}
+              </ul>
+            </ContentCard>
+          </motion.div>
+
+          <motion.div variants={cardVariants}>
+            <ContentCard title="Security & Compliance Audit" className="border-l-4 border-l-cyan-500 shadow-md">
+              <div className="mb-4">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2 leading-relaxed italic border-b border-slate-100 dark:border-slate-800/80 pb-3">
+                   {analysis.securityProfile || "General codebase quality review."}
+                </p>
+              </div>
+              
+              {analysis.vulnerabilities && analysis.vulnerabilities.length > 0 ? (
+                 <div className="space-y-2">
+                   <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2.5">Identified Risks</h4>
+                   {analysis.vulnerabilities.map((vuln, i) => (
+                     <SecurityItem key={i} vuln={vuln} />
+                   ))}
+                 </div>
+              ) : (
+                 <div className="flex items-center gap-2.5 text-green-700 dark:text-green-400 text-xs bg-green-50 dark:bg-green-950/15 border border-green-200 dark:border-green-900/30 p-4 rounded-xl">
+                    <ShieldCheckIcon />
+                    <span className="font-medium">No critical dependency risks identified.</span>
+                 </div>
+              )}
+            </ContentCard>
+          </motion.div>
         </div>
+
+        {/* Bottom File Explorer */}
+        <motion.div variants={cardVariants} className="col-span-1 lg:col-span-3">
+          <FileExplorer repoInfo={repoInfo} structure={structure} files={files} />
+        </motion.div>
       </div>
-     </div>
+     </motion.div>
   );
 };
-
-

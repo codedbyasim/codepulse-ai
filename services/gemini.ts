@@ -5,81 +5,208 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? '
 
 class GeminiService {
   /**
-   * Call Google Gemini API via backend proxy
+   * Call the AI backend proxy for generation
    */
-  private async callGemini(prompt: string, maxTokens: number = 2000): Promise<string> {
+  private async callGemini(prompt: string, maxTokens: number = 2000, responseType: 'json' | 'text' = 'text'): Promise<string> {
     try {
-      console.log('🤖 Calling Google Gemini API via backend proxy...');
+      console.log('🤖 Calling AI backend via proxy...');
 
       const response = await axios.post<{ text: string }>(
         `${BACKEND_URL}/api/gemini/generate`,
         {
           prompt,
-          maxTokens
+          maxTokens,
+          responseType
         },
         {
           timeout: 60000 // 60 second timeout for large repos
         }
       );
 
-      console.log('✅ Gemini API response received');
+      console.log('✅ AI backend response received');
       return response.data.text;
 
     } catch (error: any) {
       if (error.response) {
-        console.error('❌ Gemini API error:', error.response.status, error.response.data);
+        console.error('❌ AI backend error:', error.response.status, error.response.data);
       } else if (error.request) {
-        console.error('❌ Gemini network error: No response received');
+        console.error('❌ AI backend network error: No response received');
       } else {
-        console.error('❌ Gemini request error:', error.message);
+        console.error('❌ AI backend request error:', error.message);
       }
-      throw new Error('Failed to call Gemini API: ' + (error.response?.data?.message || error.message));
+      throw new Error('Failed to call AI backend: ' + (error.response?.data?.message || error.message));
     }
   }
 
   /**
-   * Parse JSON from Gemini response
+   * Parse JSON from AI response with robust fallback parsing
    */
   private parseGeminiResponse<T>(text: string): T {
+    const cleaned = this.cleanJsonOutput(text);
     try {
-      // Try direct JSON parse first
-      return JSON.parse(text);
-    } catch (e) {
-      // Try to extract JSON from text
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        try {
-          return JSON.parse(jsonMatch[0]);
-        } catch (e2) {
-          console.error('❌ Failed to parse extracted JSON');
+      return JSON.parse(cleaned);
+    } catch (e: any) {
+      console.warn('⚠️ Direct JSON.parse failed. Attempting robust JS object evaluation fallback...');
+      try {
+        // Fallback: Use safe evaluation since LLMs often produce JS-like syntax (single quotes, trailing commas, etc.)
+        // We wrap in parentheses to force it to be evaluated as an expression
+        const evaluator = new Function(`return (${cleaned})`);
+        const result = evaluator();
+        if (result && typeof result === 'object') {
+          return result as T;
         }
+        throw new Error('Evaluated result is not an object');
+      } catch (fallbackErr: any) {
+        console.error('❌ Direct JSON parse failed:', e.message, 'Cleaned input:', cleaned);
+        console.error('❌ Robust fallback evaluation also failed:', fallbackErr.message);
+        console.error('Original response text:', text);
+        throw new Error(`Could not parse JSON from Gemini response: ${e.message}`);
       }
-      throw new Error('Could not parse JSON from Gemini response');
     }
   }
 
   /**
-   * Clean JSON output by removing markdown code blocks
+   * Clean JSON output by removing markdown code blocks and repairing common syntax issues
    */
   private cleanJsonOutput(text: string): string {
-    let cleaned = text.trim();
+    let s = text.trim();
     
-    // Extract JSON object: find the first '{' and the last '}'
-    const firstOpen = cleaned.indexOf('{');
-    const lastClose = cleaned.lastIndexOf('}');
+    // 1. Remove markdown code blocks if present
+    if (s.startsWith('```json')) {
+      s = s.substring(7);
+    } else if (s.startsWith('```')) {
+      s = s.substring(3);
+    }
+    if (s.endsWith('```')) {
+      s = s.substring(0, s.length - 3);
+    }
+    s = s.trim();
+
+    // Find first { or [
+    const firstBrace = s.indexOf('{');
+    const firstBracket = s.indexOf('[');
+    let startIdx = -1;
+    if (firstBrace !== -1 && firstBracket !== -1) {
+      startIdx = Math.min(firstBrace, firstBracket);
+    } else if (firstBrace !== -1) {
+      startIdx = firstBrace;
+    } else if (firstBracket !== -1) {
+      startIdx = firstBracket;
+    }
+
+    // Find last } or ]
+    const lastBrace = s.lastIndexOf('}');
+    const lastBracket = s.lastIndexOf(']');
+    let endIdx = -1;
+    if (lastBrace !== -1 && lastBracket !== -1) {
+      endIdx = Math.max(lastBrace, lastBracket);
+    } else if (lastBrace !== -1) {
+      endIdx = lastBrace;
+    } else if (lastBracket !== -1) {
+      endIdx = lastBracket;
+    }
+
+    if (startIdx !== -1) {
+      // If we found a starting brace/bracket, slice from there
+      if (endIdx !== -1 && endIdx > startIdx) {
+        s = s.substring(startIdx, endIdx + 1);
+      } else {
+        s = s.substring(startIdx);
+      }
+    }
+
+    // 2. Fix unescaped newlines, tabs, and carriage returns inside string values:
+    let insideString = false;
+    let stringChar = '"';
+    let escaped = false;
+    let repaired = '';
+    for (let i = 0; i < s.length; i++) {
+      const char = s[i];
+      if ((char === '"' || char === "'") && !escaped) {
+        if (!insideString) {
+          insideString = true;
+          stringChar = char;
+          repaired += char;
+        } else if (char === stringChar) {
+          insideString = false;
+          repaired += char;
+        } else {
+          repaired += char;
+        }
+      } else if (char === '\\' && insideString) {
+        escaped = !escaped;
+        repaired += char;
+      } else {
+        if (insideString) {
+          if (char === '\n') {
+            repaired += '\\n';
+          } else if (char === '\r') {
+            repaired += '\\r';
+          } else if (char === '\t') {
+            repaired += '\\t';
+          } else {
+            repaired += char;
+          }
+        } else {
+          repaired += char;
+        }
+        escaped = false;
+      }
+    }
+    s = repaired;
+
+    // 3. Balance braces and brackets if they are unbalanced (e.g. truncated response)
+    let openBraces = 0;
+    let openBrackets = 0;
+    let inStr = false;
+    let esc = false;
+    let strCh = '"';
     
-    if (firstOpen !== -1 && lastClose !== -1 && lastClose > firstOpen) {
-      cleaned = cleaned.substring(firstOpen, lastClose + 1);
-    } else {
-      // Fallback: strip markdown code blocks
-      if (cleaned.startsWith('```json')) {
-        cleaned = cleaned.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-      } else if (cleaned.startsWith('```')) {
-        cleaned = cleaned.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    for (let i = 0; i < s.length; i++) {
+      const char = s[i];
+      if (char === '\\' && inStr) {
+        esc = !esc;
+        continue;
+      }
+      if ((char === '"' || char === "'") && !esc) {
+        if (!inStr) {
+          inStr = true;
+          strCh = char;
+        } else if (char === strCh) {
+          inStr = false;
+        }
+      }
+      esc = false;
+      
+      if (!inStr) {
+        if (char === '{') openBraces++;
+        else if (char === '}') openBraces = Math.max(0, openBraces - 1);
+        else if (char === '[') openBrackets++;
+        else if (char === ']') openBrackets = Math.max(0, openBrackets - 1);
       }
     }
     
-    return cleaned;
+    // Close strings if left open
+    if (inStr) {
+      s += strCh;
+    }
+    
+    // Append missing brackets
+    while (openBrackets > 0) {
+      s += ']';
+      openBrackets--;
+    }
+    
+    // Append missing braces
+    while (openBraces > 0) {
+      s += '}';
+      openBraces--;
+    }
+
+    // 4. Remove trailing commas before closing braces/brackets
+    s = s.replace(/,\s*([\]}])/g, '$1');
+
+    return s;
   }
 
   /**
@@ -209,10 +336,12 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
       "description": "string"
     }
   ]
-}`;
+}
 
-    const response = await this.callGemini(prompt, 2500);
-    const parsed = this.parseGeminiResponse<AnalysisResult>(this.cleanJsonOutput(response));
+CRITICAL: Inside all JSON string values (such as summary, installation, notes, description), DO NOT use unescaped double quotes ("). If you need to use quotes inside a string, use single quotes (') instead. Ensure all string properties are properly closed and valid JSON string values.`;
+
+    const response = await this.callGemini(prompt, 8000, 'json');
+    const parsed = this.parseGeminiResponse<AnalysisResult>(response);
     
     if (parsed.classDiagram) parsed.classDiagram = this.fixMermaidSyntax(parsed.classDiagram);
     if (parsed.sequenceDiagram) parsed.sequenceDiagram = this.fixMermaidSyntax(parsed.sequenceDiagram);
@@ -286,10 +415,12 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
       "code": "string"
     }
   ]
-}`;
+}
 
-    const response = await this.callGemini(prompt, 3000);
-    const parsed = this.parseGeminiResponse<AnalysisResult>(this.cleanJsonOutput(response));
+CRITICAL: Inside all JSON string values (such as summary, installation, notes, description, reasoning, code), DO NOT use unescaped double quotes ("). If you need to use quotes inside a string, use single quotes (') instead. Ensure all string properties are properly closed and valid JSON string values.`;
+
+    const response = await this.callGemini(prompt, 8000, 'json');
+    const parsed = this.parseGeminiResponse<AnalysisResult>(response);
     
     if (parsed.classDiagram) parsed.classDiagram = this.fixMermaidSyntax(parsed.classDiagram);
     if (parsed.sequenceDiagram) parsed.sequenceDiagram = this.fixMermaidSyntax(parsed.sequenceDiagram);
@@ -339,10 +470,12 @@ Return ONLY valid JSON in this format:
   "dependencies": ["string"],
   "keyExports": ["string"],
   "potentialUsage": "string"
-}`;
+}
 
-    const response = await this.callGemini(prompt, 1000);
-    return this.parseGeminiResponse<FileAnalysisResult>(this.cleanJsonOutput(response));
+CRITICAL: Inside all JSON string values (such as summary, potentialUsage), DO NOT use unescaped double quotes ("). If you need to use quotes inside a string, use single quotes (') instead. Ensure all string properties are properly closed and valid JSON string values.`;
+
+    const response = await this.callGemini(prompt, 4000, 'json');
+    return this.parseGeminiResponse<FileAnalysisResult>(response);
   }
 
   /**

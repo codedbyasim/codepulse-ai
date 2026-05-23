@@ -1,7 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { RepoInfo, FileContent, FileAnalysisResult } from '../types';
 import { Card, DiffViewer, MarkdownRenderer } from './SharedUI';
 import { analyzeSingleFile } from '../services/gemini';
+import { Search, File, Folder, ChevronRight, ChevronDown, CheckCircle, Edit3, Eye, FileText, AlertCircle, ArrowUpRight, Cpu } from 'lucide-react';
 
 interface FileExplorerProps {
   repoInfo: RepoInfo;
@@ -18,49 +20,12 @@ interface TreeNode {
   children: TreeNode[];
 }
 
-// --- ICONS & HELPERS ---
-
-const FileIcons = {
-  Generic: (className: string) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-  ),
-  Code: (className: string) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-    </svg>
-  ),
-  Config: (className: string) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-    </svg>
-  ),
-  Image: (className: string) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    </svg>
-  ),
-  Lock: (className: string) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-    </svg>
-  ),
-  Document: (className: string) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-    </svg>
-  )
-};
-
-// IMPROVED: SmartFileIcon now includes a background glow and better colors
+// Smart File Icon mapping using lucide icons and standard types
 const SmartFileIcon = ({ filename, className = "w-4 h-4" }: { filename: string; className?: string }) => {
   const ext = filename.split('.').pop()?.toLowerCase();
   
-  let IconComp = FileIcons.Generic;
   let color = 'text-gray-500 dark:text-gray-400';
-  let bgColor = 'bg-gray-200 dark:bg-gray-700';
+  let bgColor = 'bg-gray-100 dark:bg-gray-800/40';
 
   switch (ext) {
     case 'ts':
@@ -69,38 +34,33 @@ const SmartFileIcon = ({ filename, className = "w-4 h-4" }: { filename: string; 
     case 'jsx':
     case 'cjs':
     case 'mjs':
-      IconComp = FileIcons.Code;
       if (['ts','tsx'].includes(ext!)) {
-         color = 'text-blue-600 dark:text-blue-400';
-         bgColor = 'bg-blue-100 dark:bg-blue-900';
+         color = 'text-blue-500 dark:text-blue-400';
+         bgColor = 'bg-blue-500/10';
       } else {
-         color = 'text-yellow-600 dark:text-yellow-300';
-         bgColor = 'bg-yellow-100 dark:bg-yellow-900';
+         color = 'text-amber-500 dark:text-amber-400';
+         bgColor = 'bg-amber-500/10';
       }
       break;
 
     case 'py':
-      IconComp = FileIcons.Code;
-      color = 'text-blue-500 dark:text-blue-300';
-      bgColor = 'bg-blue-100 dark:bg-blue-900';
+      color = 'text-indigo-500 dark:text-indigo-400';
+      bgColor = 'bg-indigo-500/10';
       break;
     
     case 'go':
-      IconComp = FileIcons.Code;
-      color = 'text-cyan-600 dark:text-cyan-400';
-      bgColor = 'bg-cyan-100 dark:bg-cyan-900';
+      color = 'text-cyan-500 dark:text-cyan-400';
+      bgColor = 'bg-cyan-500/10';
       break;
     
     case 'java':
-      IconComp = FileIcons.Code;
-      color = 'text-red-600 dark:text-red-400';
-      bgColor = 'bg-red-100 dark:bg-red-900';
+      color = 'text-red-500 dark:text-red-400';
+      bgColor = 'bg-red-500/10';
       break;
 
     case 'rs':
-      IconComp = FileIcons.Code;
-      color = 'text-orange-600 dark:text-orange-400';
-      bgColor = 'bg-orange-100 dark:bg-orange-900';
+      color = 'text-orange-550 dark:text-orange-450';
+      bgColor = 'bg-orange-500/10';
       break;
       
     case 'json':
@@ -109,85 +69,55 @@ const SmartFileIcon = ({ filename, className = "w-4 h-4" }: { filename: string; 
     case 'toml':
     case 'env':
     case 'ini':
-      IconComp = FileIcons.Config;
-      color = 'text-emerald-600 dark:text-green-400';
-      bgColor = 'bg-emerald-100 dark:bg-green-900';
+      color = 'text-emerald-500 dark:text-emerald-400';
+      bgColor = 'bg-emerald-500/10';
       break;
       
     case 'css':
     case 'scss':
     case 'sass':
     case 'less':
-      IconComp = FileIcons.Document; 
-      color = 'text-pink-600 dark:text-pink-400';
-      bgColor = 'bg-pink-100 dark:bg-pink-900';
+      color = 'text-pink-500 dark:text-pink-400';
+      bgColor = 'bg-pink-500/10';
       break;
       
     case 'html':
     case 'htm':
     case 'xml':
-      IconComp = FileIcons.Code;
-      color = 'text-orange-600 dark:text-orange-500';
-      bgColor = 'bg-orange-100 dark:bg-orange-900';
+      color = 'text-orange-500';
+      bgColor = 'bg-orange-500/10';
       break;
 
     case 'md':
     case 'txt':
     case 'gitignore':
-      IconComp = FileIcons.Document;
-      color = 'text-gray-600 dark:text-gray-300';
-      bgColor = 'bg-gray-200 dark:bg-gray-700';
+      color = 'text-slate-500 dark:text-slate-400';
+      bgColor = 'bg-slate-500/10';
       break;
       
     case 'lock':
-      IconComp = FileIcons.Lock;
-      color = 'text-gray-500 dark:text-gray-400';
-      bgColor = 'bg-gray-200 dark:bg-gray-800';
-      break;
-      
-    case 'png':
-    case 'jpg':
-    case 'jpeg':
-    case 'gif':
-    case 'svg':
-    case 'ico':
-    case 'webp':
-      IconComp = FileIcons.Image;
-      color = 'text-purple-600 dark:text-purple-400';
-      bgColor = 'bg-purple-100 dark:bg-purple-900';
+      color = 'text-slate-600 dark:text-slate-500';
+      bgColor = 'bg-slate-600/10';
       break;
   }
 
-  // Render with background glow/circle for better contrast
   return (
-    <div className={`flex items-center justify-center p-1 rounded-full ${bgColor} bg-opacity-40 dark:bg-opacity-20 transition-colors duration-300`}>
-       {IconComp(`${className} ${color} transition-colors duration-300`)}
+    <div className={`flex items-center justify-center p-1.5 rounded-lg ${bgColor} shrink-0`}>
+       <File className={`${className} ${color}`} />
     </div>
   );
 };
 
 const FolderIconClosed = () => (
-   <div className="flex items-center justify-center p-1 rounded-full bg-blue-50 dark:bg-blue-900/10 transition-colors duration-300">
-      <svg className="w-4 h-4 text-blue-400 dark:text-blue-300 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z" />
-      </svg>
+   <div className="flex items-center justify-center p-1.5 rounded-lg bg-blue-500/10 shrink-0">
+      <Folder className="w-4 h-4 text-blue-500" />
    </div>
 );
 
 const FolderIconOpen = () => (
-   <div className="flex items-center justify-center p-1 rounded-full bg-blue-100 dark:bg-blue-900/20 transition-colors duration-300">
-      <svg className="w-4 h-4 text-blue-500 dark:text-blue-400 transition-colors duration-300" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M20 6h-8l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z" />
-      </svg>
+   <div className="flex items-center justify-center p-1.5 rounded-lg bg-blue-500/15 shrink-0">
+      <Folder className="w-4 h-4 text-blue-400" />
    </div>
-);
-
-const ChevronRight = () => (
-  <svg className="w-3 h-3 text-gray-400 dark:text-gray-500 transition-colors duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
-);
-
-const ChevronDown = () => (
-  <svg className="w-3 h-3 text-gray-400 dark:text-gray-500 transition-colors duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
 );
 
 const buildTree = (paths: string[]): TreeNode[] => {
@@ -239,8 +169,6 @@ const findNodeByPath = (nodes: TreeNode[], path: string): TreeNode | null => {
   return null;
 };
 
-// --- COMPONENTS ---
-
 const FileTreeItem: React.FC<{
   node: TreeNode;
   level: number;
@@ -249,13 +177,12 @@ const FileTreeItem: React.FC<{
   filesWithContent: Set<string>;
   modifiedFiles: Set<string>;
   highlightColor?: string;
-}> = ({ node, level, selectedFile, onSelect, filesWithContent, modifiedFiles, highlightColor = "bg-blue-50 dark:bg-github-accent/20" }) => {
+}> = ({ node, level, selectedFile, onSelect, filesWithContent, modifiedFiles, highlightColor = "bg-cyan-500/5 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const isSelected = selectedFile === node.path;
   const hasContent = node.type === 'file' && filesWithContent.has(node.path);
   const isModified = node.type === 'file' && modifiedFiles.has(node.path);
 
-  // Auto-expand if the selected file is inside this folder
   useEffect(() => {
     if (selectedFile?.startsWith(node.path + '/')) {
       setIsOpen(true);
@@ -277,25 +204,22 @@ const FileTreeItem: React.FC<{
       <div 
         onClick={handleClick}
         className={`
-          flex items-center gap-2 py-1.5 pr-2 cursor-pointer select-none transition-all duration-150 text-sm 
-          border-l-2
+          flex items-center gap-2 py-2 pr-2.5 cursor-pointer select-none transition-all duration-200 text-sm border-l-2
           ${isSelected 
-            ? `${highlightColor} text-blue-700 dark:text-white border-blue-500 dark:border-github-accent` 
-            : 'text-gray-500 dark:text-gray-400 border-transparent hover:bg-gray-100 dark:hover:bg-github-card hover:text-gray-900 dark:hover:text-gray-200'
+            ? `${highlightColor} font-bold` 
+            : 'text-slate-650 dark:text-slate-400 border-transparent hover:bg-slate-50 dark:hover:bg-slate-900/40 hover:text-slate-900 dark:hover:text-slate-200'
           }
         `}
-        style={{ paddingLeft: `${level * 12 + 8}px` }}
+        style={{ paddingLeft: `${level * 12 + 10}px` }}
       >
-        {/* Indentation Chevron */}
-        <span className="shrink-0 flex items-center justify-center w-4 h-4 opacity-70 transition-colors duration-300">
+        <span className="shrink-0 flex items-center justify-center w-4 h-4 opacity-60">
           {node.type === 'folder' ? (
-            isOpen ? <ChevronDown /> : <ChevronRight />
+            isOpen ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />
           ) : (
-            <span className="w-3" /> // Spacer
+            <span className="w-3.5" />
           )}
         </span>
 
-        {/* Icon */}
         <span className="shrink-0">
           {node.type === 'folder' ? (
             isOpen ? <FolderIconOpen /> : <FolderIconClosed />
@@ -304,41 +228,44 @@ const FileTreeItem: React.FC<{
           )}
         </span>
 
-        {/* Name */}
-        <span className={`truncate transition-colors duration-300 ${isSelected ? 'font-medium' : ''} ${node.type === 'folder' ? 'text-gray-700 dark:text-gray-300' : ''}`}>
+        <span className="truncate flex-1">
           {node.name}
         </span>
 
-        {/* Status Indicators */}
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex items-center gap-1.5 shrink-0 ml-2">
             {isModified && (
-                <span className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_5px_rgba(250,204,21,0.5)]" title="Modified"></span>
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" title="Modified"></span>
             )}
             {hasContent && (
-               <svg className="w-3 h-3 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}>
-                 <title>Analyzed</title>
-                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-               </svg>
+               <CheckCircle className="w-3.5 h-3.5 text-emerald-500" title="AI Scanning Complete" />
             )}
         </div>
       </div>
 
-      {node.type === 'folder' && isOpen && (
-        <div className="border-l border-gray-200 dark:border-gray-800 ml-[19px] transition-colors duration-300">
-          {node.children.map(child => (
-            <FileTreeItem 
-              key={child.path} 
-              node={child} 
-              level={level + 1} 
-              selectedFile={selectedFile} 
-              onSelect={onSelect}
-              filesWithContent={filesWithContent}
-              modifiedFiles={modifiedFiles}
-              highlightColor={highlightColor}
-            />
-          ))}
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {node.type === 'folder' && isOpen && (
+          <motion.div 
+            className="border-l border-slate-200 dark:border-slate-800 ml-5"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {node.children.map(child => (
+              <FileTreeItem 
+                key={child.path} 
+                node={child} 
+                level={level + 1} 
+                selectedFile={selectedFile} 
+                onSelect={onSelect}
+                filesWithContent={filesWithContent}
+                modifiedFiles={modifiedFiles}
+                highlightColor={highlightColor}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
@@ -412,34 +339,36 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ repoInfo, structure,
     }
   };
 
-  const highlightClass = themeColor ? themeColor : "bg-blue-50 dark:bg-github-accent/20";
-  const buttonActive = themeColor ? `bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white` : "bg-blue-100 dark:bg-github-accent text-blue-700 dark:text-white";
+  const highlightClass = themeColor ? themeColor : "bg-cyan-500/5 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500";
+  const buttonActive = "bg-white dark:bg-slate-700 text-slate-950 dark:text-white shadow-sm font-semibold border-b border-slate-350 dark:border-slate-500";
 
   return (
-    <Card title={title}>
-      <div className="flex flex-col md:flex-row h-[600px] transition-colors duration-300">
-        {/* File List Panel */}
-        <div className="w-full md:w-1/3 flex flex-col border-b md:border-b-0 md:border-r border-gray-200 dark:border-github-border bg-gray-50 dark:bg-[#0d1117] transition-colors duration-300">
-            {/* Search Bar */}
-            <div className="p-3 border-b border-gray-200 dark:border-github-border sticky top-0 bg-gray-50 dark:bg-[#0d1117] z-10 transition-colors duration-300">
+    <Card title={title} className="shadow-lg border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden">
+      <div className="flex flex-col lg:flex-row h-[650px] transition-colors duration-300">
+        
+        {/* Left Explorer Sidebar */}
+        <div className="w-full lg:w-1/3 flex flex-col border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-850 bg-slate-50/50 dark:bg-[#0d1117]/60">
+            
+            {/* Search inputs */}
+            <div className="p-3 border-b border-slate-200 dark:border-slate-850 sticky top-0 z-10">
               <div className="relative">
                 <input 
                   type="text" 
-                  placeholder="Search files..." 
-                  className="w-full bg-white dark:bg-github-card border border-gray-300 dark:border-github-border rounded-md pl-8 pr-3 py-1.5 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-blue-400 dark:focus:border-gray-500 placeholder-gray-500 dark:placeholder-gray-600 transition-colors duration-300 shadow-sm dark:shadow-none"
+                  placeholder="Search repository files..." 
+                  className="w-full bg-white dark:bg-github-card border border-slate-250 dark:border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-cyan-500 placeholder-slate-400 dark:placeholder-slate-500 transition-colors"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                <svg className="w-4 h-4 text-gray-400 dark:text-gray-500 absolute left-2.5 top-2 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               </div>
             </div>
 
-            {/* Tree Area */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-0">
+            {/* Tree Scrolling Grid */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
               {searchTerm ? (
-                // Flat List for Search
+                // Flat Search Grid
                 filteredStructure.length > 0 ? (
-                  <div className="py-2">
+                  <div className="py-1">
                     {filteredStructure.map(path => {
                       const hasContent = filesWithContent.has(path);
                       const isMod = modifiedFiles.has(path);
@@ -448,28 +377,28 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ repoInfo, structure,
                         <div 
                           key={path} 
                           onClick={() => setSelectedFile(path)}
-                          className={`flex items-center gap-2 px-4 py-2 text-sm cursor-pointer transition-colors duration-300 border-l-2 ${selectedFile === path ? `${highlightClass} text-blue-700 dark:text-white border-blue-500 dark:border-github-accent` : 'text-gray-500 dark:text-gray-400 border-transparent hover:bg-gray-100 dark:hover:bg-github-card'}`}
+                          className={`flex items-center gap-2.5 px-4.5 py-2 text-xs cursor-pointer border-l-2 ${selectedFile === path ? `${highlightClass} font-bold` : 'text-slate-650 dark:text-slate-400 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                         >
                             <SmartFileIcon filename={filename} />
-                            <div className="flex flex-col min-w-0">
-                              <span className="truncate text-gray-700 dark:text-gray-200 transition-colors duration-300">{filename}</span>
-                              <span className="text-xs text-gray-500 dark:text-gray-600 truncate transition-colors duration-300">{path}</span>
+                            <div className="flex flex-col min-w-0 flex-1">
+                              <span className="truncate text-slate-800 dark:text-slate-250 font-semibold">{filename}</span>
+                              <span className="text-[10px] text-slate-400 truncate mt-0.5">{path}</span>
                             </div>
-                            <div className="ml-auto flex gap-2">
-                                {isMod && <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>}
-                                {hasContent && <svg className="w-3 h-3 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>}
+                            <div className="shrink-0 flex items-center gap-1.5">
+                                {isMod && <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>}
+                                {hasContent && <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />}
                             </div>
                         </div>
                       );
                     })}
                   </div>
                 ) : (
-                  <div className="p-4 text-center text-gray-500 text-sm">No files found matching "{searchTerm}"</div>
+                  <div className="p-8 text-center text-slate-400 text-xs italic">No matching files found.</div>
                 )
               ) : (
-                // Hierarchical Tree
+                // Tree Explorer
                 treeRoot.length > 0 ? (
-                    <div className="py-2">
+                    <div className="py-1.5">
                       {treeRoot.map(node => (
                         <FileTreeItem 
                           key={node.path}
@@ -484,41 +413,42 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ repoInfo, structure,
                       ))}
                     </div>
                 ) : (
-                    <div className="p-4 text-center text-gray-500 text-sm">No structure available</div>
+                    <div className="p-8 text-center text-slate-400 text-xs italic">Empty tree.</div>
                 )
               )}
             </div>
             
-            {/* Status Footer */}
-            <div className="p-2 border-t border-gray-200 dark:border-github-border bg-white dark:bg-github-card text-[10px] text-gray-500 flex justify-between px-4 transition-colors duration-300">
+            {/* Sidebar Stats footer */}
+            <div className="p-3 border-t border-slate-200 dark:border-slate-850 bg-white dark:bg-github-card text-[10px] text-slate-400 font-mono flex justify-between px-4">
                <span>{structure.length} items</span>
-               <span>{files.length} analyzed</span>
+               <span>{files.length} loaded & analyzed</span>
             </div>
         </div>
 
-        {/* File Viewer Panel */}
-        <div className="w-full md:w-2/3 flex flex-col bg-white dark:bg-[#0d1117] transition-colors duration-300">
-            <div className="px-4 py-2 border-b border-gray-200 dark:border-github-border bg-gray-50 dark:bg-github-card flex justify-between items-center h-[53px] transition-colors duration-300">
-              <div className="flex items-center gap-3 overflow-hidden">
+        {/* Right Code Display Pane */}
+        <div className="w-full lg:w-2/3 flex flex-col bg-white dark:bg-[#0d1117]">
+            
+            {/* Header toolbar */}
+            <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-850 bg-slate-50 dark:bg-github-card flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 min-h-[54px]">
+              <div className="flex items-center gap-2.5 overflow-hidden w-full sm:w-auto">
                 {selectedNode?.type === 'folder' ? (
                    <FolderIconOpen /> 
                 ) : (
-                   <SmartFileIcon filename={selectedFile || ''} className="w-5 h-5" />
+                   <SmartFileIcon filename={selectedFile || ''} className="w-4 h-4" />
                 )}
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-200 truncate font-mono transition-colors duration-300">
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-350 truncate font-mono bg-slate-100 dark:bg-slate-900 px-2 py-1 rounded">
                   {selectedFile || 'Select a file'}
                 </span>
                 
                 {/* Badges */}
-                <div className="flex gap-2">
+                <div className="flex gap-1.5 shrink-0 ml-1">
                   {isSelectedFileAvailable && (
-                      <span className="flex items-center gap-1 text-[10px] text-green-600 dark:text-green-400 font-medium px-1.5 py-0.5 rounded bg-green-100 dark:bg-green-900/20 border border-green-200 dark:border-green-900/40 transition-colors duration-300">
-                         <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                      <span className="flex items-center gap-1 text-[9px] font-extrabold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                          ANALYZED
                       </span>
                   )}
                   {isModified && (
-                    <span className="text-[10px] text-yellow-600 dark:text-yellow-400 font-medium px-1.5 py-0.5 rounded bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900/40 animate-pulse transition-colors duration-300">
+                    <span className="text-[9px] font-extrabold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20 animate-pulse">
                       MODIFIED
                     </span>
                   )}
@@ -526,167 +456,183 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ repoInfo, structure,
               </div>
 
               {isSelectedFileAvailable && selectedNode?.type !== 'folder' && (
-                <div className="flex bg-gray-200 dark:bg-github-dark rounded-md p-0.5 border border-gray-300 dark:border-github-border items-center transition-colors duration-300">
-                  <button onClick={() => setViewMode('view')} className={`px-3 py-1 text-xs font-medium rounded-sm transition-colors ${viewMode === 'view' ? buttonActive : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}>Code</button>
-                  <button onClick={() => setViewMode('edit')} className={`px-3 py-1 text-xs font-medium rounded-sm transition-colors ${viewMode === 'edit' ? buttonActive : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}>Edit</button>
-                  <button onClick={() => setViewMode('diff')} disabled={!isModified} className={`px-3 py-1 text-xs font-medium rounded-sm transition-colors ${viewMode === 'diff' ? buttonActive : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed'}`}>Diff</button>
-                  <div className="w-px h-4 bg-gray-300 dark:bg-gray-700 mx-1"></div>
-                  <button 
-                    onClick={handleAnalyzeFile} 
-                    className={`flex items-center gap-1 px-3 py-1 text-xs font-medium rounded-sm transition-colors ${viewMode === 'analysis' ? 'bg-purple-600 text-white' : 'text-purple-600 dark:text-purple-400 hover:bg-purple-100 dark:hover:bg-purple-900/30'}`}
-                    title="Analyze this file with AI"
-                  >
-                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z" /></svg>
-                     AI Analyze
+                <div className="flex bg-slate-100 dark:bg-slate-900 rounded-xl p-1 border border-slate-200 dark:border-slate-800 items-center shrink-0">
+                  <button onClick={() => setViewMode('view')} className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1 ${viewMode === 'view' ? buttonActive : 'text-slate-400 hover:text-slate-200'}`}>
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>View</span>
                   </button>
+                  <button onClick={() => setViewMode('edit')} className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1 ${viewMode === 'edit' ? buttonActive : 'text-slate-400 hover:text-slate-200'}`}>
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Edit</span>
+                  </button>
+                  <button onClick={() => setViewMode('diff')} disabled={!isModified} className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1 ${viewMode === 'diff' ? buttonActive : 'text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:cursor-not-allowed'}`}>
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Diff</span>
+                  </button>
+                  
+                  <div className="w-px h-4 bg-slate-350 dark:bg-slate-700 mx-1.5"></div>
+                  
+                  <motion.button 
+                    onClick={handleAnalyzeFile} 
+                    className={`flex items-center gap-1 px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${viewMode === 'analysis' ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-md' : 'text-purple-500 hover:bg-purple-500/5'}`}
+                    title="Analyze this file with AI"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                     <Cpu className="w-3.5 h-3.5" />
+                     <span>AI Audit</span>
+                  </motion.button>
                 </div>
               )}
             </div>
             
-            <div className="flex-1 overflow-auto p-0 custom-scrollbar relative bg-white dark:bg-[#0d1117] transition-colors duration-300">
+            {/* Main Content Area */}
+            <div className="flex-1 overflow-auto p-0 custom-scrollbar relative bg-white dark:bg-[#0d1117]">
               {selectedFile ? (
                 selectedNode?.type === 'folder' ? (
-                    // Folder View
+                    // Folder Contents Grid View
                     <div className="p-6">
-                        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 border-b border-gray-200 dark:border-gray-800 pb-2 transition-colors duration-300">
-                           Folder Contents
+                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-200 dark:border-slate-800 pb-2 flex items-center gap-1.5">
+                           <Folder className="w-4 h-4 text-blue-500" />
+                           <span>Subdirectory Assets</span>
                         </h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
                            {selectedNode.children.map(child => (
-                              <div 
+                              <motion.div 
                                  key={child.path}
                                  onClick={() => setSelectedFile(child.path)}
-                                 className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer transition-all duration-300 group"
+                                 className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-650 cursor-pointer transition-all duration-200 group"
+                                 whileHover={{ y: -1 }}
                               >
-                                 <div className="shrink-0 group-hover:scale-110 transition-transform duration-300">
+                                 <div className="shrink-0">
                                     {child.type === 'folder' ? <FolderIconClosed /> : <SmartFileIcon filename={child.name} />}
                                  </div>
-                                 <span className="text-sm text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white truncate transition-colors duration-300">{child.name}</span>
-                              </div>
+                                 <span className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate group-hover:text-slate-900 dark:group-hover:text-white">{child.name}</span>
+                              </motion.div>
                            ))}
                         </div>
                         {selectedNode.children.length === 0 && (
-                            <div className="text-gray-500 text-sm italic py-8 text-center transition-colors duration-300">Empty folder</div>
+                            <div className="text-slate-400 text-xs italic py-8 text-center">Empty directory.</div>
                         )}
                     </div>
                 ) : (
-                  // File View
+                  // File Contents View
                   isSelectedFileAvailable ? (
                     <>
                       {viewMode === 'view' && (
-                          <pre className="p-4 text-xs sm:text-sm font-mono text-gray-800 dark:text-gray-300 whitespace-pre leading-relaxed transition-colors duration-300">
+                          <pre className="p-5 text-xs sm:text-sm font-mono text-slate-800 dark:text-slate-300 whitespace-pre leading-relaxed">
                             <code>{currentContent}</code>
                           </pre>
                       )}
                       {viewMode === 'edit' && (
                         <textarea
-                          className="w-full h-full bg-white dark:bg-[#0d1117] text-gray-800 dark:text-gray-300 p-4 font-mono text-xs sm:text-sm resize-none focus:outline-none leading-relaxed transition-colors duration-300"
+                          className="w-full h-full bg-white dark:bg-[#0d1117] text-slate-800 dark:text-slate-300 p-5 font-mono text-xs sm:text-sm resize-none focus:outline-none leading-relaxed"
                           value={currentContent}
                           onChange={(e) => handleContentChange(e.target.value)}
                           spellCheck={false}
                         />
                       )}
                       {viewMode === 'diff' && originalContent && (
-                        <div className="h-full bg-white dark:bg-[#0d1117] transition-colors duration-300">
+                        <div className="h-full bg-white dark:bg-[#0d1117]">
                             <DiffViewer original={originalContent} modified={currentContent || ''} />
                         </div>
                       )}
                       {viewMode === 'analysis' && (
-                        <div className="h-full bg-white dark:bg-[#0d1117] p-6 transition-colors duration-300">
+                        <div className="h-full bg-white dark:bg-[#0d1117] p-6">
                            {isAnalyzingFile ? (
-                              <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                              <div className="flex flex-col items-center justify-center h-full text-slate-400">
                                  <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-                                 <p className="animate-pulse">Analyzing {selectedFile}...</p>
+                                 <p className="animate-pulse font-semibold">Running Code Analysis Audit...</p>
                               </div>
                            ) : analysisCache[selectedFile!] ? (
                               <div className="space-y-6 max-w-4xl mx-auto animate-fade-in">
-                                 <div className="flex justify-between items-start border-b border-gray-200 dark:border-gray-800 pb-4 transition-colors duration-300">
+                                 <div className="flex justify-between items-start border-b border-slate-200 dark:border-slate-800 pb-4">
                                     <div>
-                                       <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2 transition-colors duration-300">AI Analysis</h2>
-                                       <p className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">{selectedFile}</p>
+                                       <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-1">AI Audit Result</h2>
+                                       <p className="text-xs text-slate-450 font-mono">{selectedFile}</p>
                                     </div>
-                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border transition-colors duration-300 ${
-                                       analysisCache[selectedFile!].complexity === 'High' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-900/50' :
-                                       analysisCache[selectedFile!].complexity === 'Medium' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-900/50' :
-                                       'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900/50'
+                                    <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
+                                       analysisCache[selectedFile!].complexity === 'High' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                                       analysisCache[selectedFile!].complexity === 'Medium' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                       'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
                                     }`}>
                                        {analysisCache[selectedFile!].complexity} Complexity
                                     </span>
                                  </div>
                                  
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="bg-white dark:bg-github-card p-4 rounded border border-gray-200 dark:border-github-border transition-colors duration-300">
-                                       <h3 className="text-sm font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest mb-3 transition-colors duration-300">Summary</h3>
-                                       <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-300">{analysisCache[selectedFile!].summary}</p>
+                                    <div className="bg-slate-50/50 dark:bg-[#161b22]/40 p-4.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                                       <h3 className="text-xs font-bold text-purple-500 uppercase tracking-widest mb-3">Module Summary</h3>
+                                       <p className="text-xs sm:text-sm text-slate-650 dark:text-slate-350 leading-relaxed font-normal">{analysisCache[selectedFile!].summary}</p>
                                     </div>
                                     
-                                    <div className="bg-white dark:bg-github-card p-4 rounded border border-gray-200 dark:border-github-border transition-colors duration-300">
-                                       <h3 className="text-sm font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-3 transition-colors duration-300">Potential Usage</h3>
-                                       <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed transition-colors duration-300">{analysisCache[selectedFile!].potentialUsage}</p>
+                                    <div className="bg-slate-50/50 dark:bg-[#161b22]/40 p-4.5 rounded-xl border border-slate-200 dark:border-slate-800">
+                                       <h3 className="text-xs font-bold text-cyan-500 uppercase tracking-widest mb-3">Intended Integration & Role</h3>
+                                       <p className="text-xs sm:text-sm text-slate-650 dark:text-slate-350 leading-relaxed font-normal">{analysisCache[selectedFile!].potentialUsage}</p>
                                     </div>
                                  </div>
 
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                       <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 transition-colors duration-300">Dependencies (Imports)</h3>
+                                       <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Module Dependencies</h3>
                                        {analysisCache[selectedFile!].dependencies.length > 0 ? (
-                                          <ul className="space-y-1">
+                                          <ul className="space-y-1.5">
                                              {analysisCache[selectedFile!].dependencies.map((dep, i) => (
-                                                <li key={i} className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-900/50 px-3 py-2 rounded border border-gray-200 dark:border-gray-800 font-mono transition-colors duration-300">
+                                                <li key={i} className="text-xs text-slate-600 dark:text-slate-450 bg-slate-50 dark:bg-slate-900/50 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 font-mono truncate">
                                                    {dep}
-                                                </li>
+                                                 </li>
                                              ))}
                                           </ul>
                                        ) : (
-                                          <p className="text-sm text-gray-500 italic transition-colors duration-300">No external dependencies detected.</p>
+                                          <p className="text-xs text-slate-450 italic">No dependencies found.</p>
                                        )}
                                     </div>
 
                                     <div>
-                                       <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-3 transition-colors duration-300">Key Exports (API)</h3>
+                                       <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-3">Exposed API Functions</h3>
                                        {analysisCache[selectedFile!].keyExports.length > 0 ? (
-                                          <ul className="space-y-1">
+                                          <ul className="space-y-1.5">
                                              {analysisCache[selectedFile!].keyExports.map((exp, i) => (
-                                                <li key={i} className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-900/50 px-3 py-2 rounded border border-gray-200 dark:border-gray-800 font-mono transition-colors duration-300">
+                                                <li key={i} className="text-xs text-slate-600 dark:text-slate-450 bg-slate-50 dark:bg-slate-900/50 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800 font-mono truncate">
                                                    {exp}
-                                                </li>
+                                                 </li>
                                              ))}
                                           </ul>
                                        ) : (
-                                          <p className="text-sm text-gray-500 italic transition-colors duration-300">No significant exports detected.</p>
+                                          <p className="text-xs text-slate-455 italic">No exports found.</p>
                                        )}
                                     </div>
                                  </div>
                               </div>
                            ) : (
-                              <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                                 <p>Analysis failed or no data returned.</p>
+                              <div className="flex flex-col items-center justify-center h-full text-slate-400 p-4">
+                                 <AlertCircle className="w-8 h-8 text-rose-500 mb-2" />
+                                 <p className="text-sm font-semibold">Code analysis audit failed.</p>
                               </div>
                            )}
                         </div>
                       )}
                     </>
                   ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-gray-600 dark:text-gray-500 p-8 text-center bg-white dark:bg-[#0d1117] transition-colors duration-300">
-                        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800/50 flex items-center justify-center mb-4 transition-colors duration-300">
-                           <SmartFileIcon filename={selectedFile} className="w-8 h-8 opacity-50" />
+                      <div className="flex flex-col items-center justify-center h-full text-slate-500 p-8 text-center">
+                        <div className="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-900/60 flex items-center justify-center mb-4 border border-slate-200 dark:border-slate-800">
+                           <SmartFileIcon filename={selectedFile} className="w-6 h-6 opacity-60" />
                         </div>
-                        <p className="font-medium mb-1 text-gray-800 dark:text-gray-300 transition-colors duration-300">File content not loaded</p>
-                        <p className="text-sm max-w-sm mb-6 text-gray-500 transition-colors duration-300">
-                          To save bandwidth and API tokens, CodePulse only fetches key files and source code for analysis. 
+                        <p className="font-semibold text-sm mb-1 text-slate-800 dark:text-slate-300">File content is not loaded</p>
+                        <p className="text-xs text-slate-450 max-w-sm mb-6 leading-relaxed">
+                          To minimize API context window usage, CodePulse only fetches relevant target source files.
                         </p>
-                        <a href={`${repoInfo.url}/blob/${repoInfo.defaultBranch}/${selectedFile}`} target="_blank" rel="noreferrer" className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm rounded transition-colors flex items-center gap-2 shadow-md">
-                          View on GitHub <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                        <a href={`${repoInfo.url}/blob/${repoInfo.defaultBranch}/${selectedFile}`} target="_blank" rel="noreferrer" className="px-4 py-2 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 hover:bg-emerald-500/20 text-xs font-semibold rounded-xl transition-all flex items-center gap-1.5">
+                          <span>View on GitHub</span>
+                          <ArrowUpRight className="w-4 h-4" />
                         </a>
                       </div>
                   )
                 )
               ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-gray-600 bg-white dark:bg-[#0d1117] transition-colors duration-300">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800/30 flex items-center justify-center mb-4 transition-colors duration-300">
-                       <svg className="w-8 h-8 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                    </div>
-                    <span className="text-sm transition-colors duration-300">Select a file to view code</span>
+                  <div className="flex flex-col items-center justify-center h-full text-slate-400">
+                     <FileText className="w-10 h-10 opacity-30 mb-2" />
+                     <span className="text-xs font-semibold">Select a file to begin viewing source code</span>
                   </div>
               )}
             </div>
@@ -695,4 +641,3 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ repoInfo, structure,
     </Card>
   );
 };
-
