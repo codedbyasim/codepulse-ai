@@ -18,7 +18,7 @@ export const ImpactReport: React.FC<ImpactReportProps> = ({ result, repoInfo }) 
 
   const getRiskColor = (level: string) => {
     switch (level) {
-      case 'CRITICAL': return 'from-red-500 to-red-650';
+      case 'CRITICAL': return 'from-red-500 to-red-600';
       case 'HIGH': return 'from-orange-500 to-orange-600';
       case 'MEDIUM': return 'from-amber-500 to-amber-600';
       case 'LOW': return 'from-emerald-500 to-emerald-600';
@@ -32,7 +32,7 @@ export const ImpactReport: React.FC<ImpactReportProps> = ({ result, repoInfo }) 
       case 'HIGH': return 'bg-orange-500/5 border-orange-500/20';
       case 'MEDIUM': return 'bg-amber-500/5 border-amber-500/20';
       case 'LOW': return 'bg-emerald-500/5 border-emerald-500/20';
-      default: return 'bg-slate-500/5 border-slate-550/20';
+      default: return 'bg-slate-500/5 border-slate-500/20';
     }
   };
 
@@ -153,21 +153,21 @@ export const ImpactReport: React.FC<ImpactReportProps> = ({ result, repoInfo }) 
               exit={{ height: 0 }}
               transition={{ duration: 0.25 }}
             >
-              <div className="px-6 pb-6 border-t border-slate-200 dark:border-slate-850 pt-5">
+              <div className="px-6 pb-6 border-t border-slate-200 dark:border-slate-800 pt-5">
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-xl">
-                    <div className="text-[10px] font-bold text-slate-450 uppercase tracking-widest mb-1">Afferent (Ca)</div>
-                    <div className="text-2xl font-black text-blue-550">{result.couplingMetrics.afferentCoupling}</div>
+                    <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Afferent (Ca)</div>
+                    <div className="text-2xl font-black text-blue-600 dark:text-blue-400">{result.couplingMetrics.afferentCoupling}</div>
                     <div className="text-[10px] text-slate-400 mt-1 leading-normal">Modules consuming this module.</div>
                   </div>
                   <div className="p-4 bg-purple-500/5 border border-purple-500/10 rounded-xl">
-                    <div className="text-[10px] font-bold text-slate-455 uppercase tracking-widest mb-1">Efferent (Ce)</div>
-                    <div className="text-2xl font-black text-purple-550">{result.couplingMetrics.efferentCoupling}</div>
+                    <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Efferent (Ce)</div>
+                    <div className="text-2xl font-black text-purple-600 dark:text-purple-400">{result.couplingMetrics.efferentCoupling}</div>
                     <div className="text-[10px] text-slate-400 mt-1 leading-normal">Imports utilized by this module.</div>
                   </div>
                   <div className="p-4 bg-orange-500/5 border border-orange-500/10 rounded-xl">
-                    <div className="text-[10px] font-bold text-slate-450 uppercase tracking-widest mb-1">Instability Metric</div>
-                    <div className="text-2xl font-black text-orange-550">{result.couplingMetrics.instability}</div>
+                    <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Instability Metric</div>
+                    <div className="text-2xl font-black text-orange-600 dark:text-orange-400">{result.couplingMetrics.instability}</div>
                     <div className="text-[10px] text-slate-400 mt-1 leading-normal">Ce / (Ca + Ce) indicator.</div>
                   </div>
                 </div>
@@ -210,7 +210,7 @@ export const ImpactReport: React.FC<ImpactReportProps> = ({ result, repoInfo }) 
                     </h4>
                     <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
                       {result.affectedFiles.direct.map((file, idx) => (
-                        <div key={idx} className="px-3.5 py-2 bg-red-500/5 border border-red-500/10 rounded-xl text-xs font-mono text-slate-650 dark:text-slate-350">
+                        <div key={idx} className="px-3.5 py-2 bg-red-500/5 border border-red-500/10 rounded-xl text-xs font-mono text-slate-700 dark:text-slate-300">
                           {file}
                         </div>
                       ))}
@@ -225,12 +225,12 @@ export const ImpactReport: React.FC<ImpactReportProps> = ({ result, repoInfo }) 
                     </h4>
                     <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1 custom-scrollbar">
                       {result.affectedFiles.transitive.slice(0, 15).map((file, idx) => (
-                        <div key={idx} className="px-3.5 py-2 bg-orange-500/5 border border-orange-500/10 rounded-xl text-xs font-mono text-slate-650 dark:text-slate-350">
+                        <div key={idx} className="px-3.5 py-2 bg-orange-500/5 border border-orange-500/10 rounded-xl text-xs font-mono text-slate-700 dark:text-slate-300">
                           {file}
                         </div>
                       ))}
                       {result.affectedFiles.transitive.length > 15 && (
-                        <div className="text-xs text-slate-450 italic text-center py-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+                        <div className="text-xs text-slate-500 dark:text-slate-400 italic text-center py-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
                           ... plus {result.affectedFiles.transitive.length - 15} additional downstream modules.
                         </div>
                       )}
@@ -315,10 +315,10 @@ export const ImpactReport: React.FC<ImpactReportProps> = ({ result, repoInfo }) 
               exit={{ height: 0 }}
               transition={{ duration: 0.25 }}
             >
-              <div className="px-6 pb-6 border-t border-slate-200 dark:border-slate-850 pt-4">
+              <div className="px-6 pb-6 border-t border-slate-200 dark:border-slate-800 pt-4">
                 <div className="space-y-2">
                   {result.suggestedTests.map((test, idx) => (
-                    <div key={idx} className="px-3.5 py-2.5 bg-emerald-500/5 border border-emerald-500/10 rounded-xl text-xs font-mono text-slate-650 dark:text-slate-350 flex items-center gap-2.5">
+                    <div key={idx} className="px-3.5 py-2.5 bg-emerald-500/5 border border-emerald-500/10 rounded-xl text-xs font-mono text-slate-700 dark:text-slate-300 flex items-center gap-2.5">
                       <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
                       <span>{test}</span>
                     </div>
@@ -337,7 +337,7 @@ export const ImpactReport: React.FC<ImpactReportProps> = ({ result, repoInfo }) 
           className="w-full px-6 py-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-900/10 transition-colors"
         >
           <div className="flex items-center gap-3">
-             <Activity className="w-5 h-5 text-cyan-550" />
+             <Activity className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                Recommended Deployment Precautions
              </h3>
@@ -355,10 +355,10 @@ export const ImpactReport: React.FC<ImpactReportProps> = ({ result, repoInfo }) 
               exit={{ height: 0 }}
               transition={{ duration: 0.25 }}
             >
-              <div className="px-6 pb-6 border-t border-slate-200 dark:border-slate-850 pt-4">
+              <div className="px-6 pb-6 border-t border-slate-200 dark:border-slate-800 pt-4">
                 <div className="space-y-2.5">
                   {result.precautions.map((precaution, idx) => (
-                    <div key={idx} className="px-4 py-3 bg-blue-500/5 border border-blue-500/10 rounded-xl text-xs sm:text-sm text-slate-650 dark:text-slate-350 flex items-start gap-3 leading-relaxed">
+                    <div key={idx} className="px-4 py-3 bg-blue-500/5 border border-blue-500/10 rounded-xl text-xs sm:text-sm text-slate-700 dark:text-slate-300 flex items-start gap-3 leading-relaxed">
                       <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 shrink-0 mt-2"></span>
                       <span>{precaution}</span>
                     </div>

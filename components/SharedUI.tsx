@@ -344,7 +344,7 @@ export const LoadingStep: React.FC<{ label: string; status: 'pending' | 'current
              <div className="w-2.5 h-2.5 bg-slate-200 dark:bg-slate-800 rounded-full"></div>
           )}
        </div>
-       <span className={`text-sm font-semibold transition-colors duration-300 ${status === 'current' ? 'text-cyan-500 dark:text-cyan-400 scale-[1.02] origin-left' : 'text-slate-650 dark:text-slate-450'}`}>
+       <span className={`text-sm font-semibold transition-colors duration-300 ${status === 'current' ? 'text-cyan-500 dark:text-cyan-400 scale-[1.02] origin-left' : 'text-slate-600 dark:text-slate-400'}`}>
          {label}
        </span>
     </motion.div>

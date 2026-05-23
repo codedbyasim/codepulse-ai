@@ -82,12 +82,18 @@ export const DependencyGraphVisualization: React.FC<DependencyGraphVisualization
         .map(edge => ({
           from: edge.from,
           to: edge.to,
-          arrows: 'to',
-          color: {
-            color: theme === 'dark' ? 'rgba(148, 163, 184, 0.3)' : 'rgba(71, 85, 105, 0.35)',
-            highlight: '#3b82f6',
+          arrows: {
+            to: {
+              enabled: true,
+              scaleFactor: 1.2,
+            }
           },
-          width: 1,
+          color: {
+            color: theme === 'dark' ? 'rgba(148, 163, 184, 0.55)' : 'rgba(71, 85, 105, 0.65)',
+            highlight: '#3b82f6',
+            hover: theme === 'dark' ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)',
+          },
+          width: 1.5,
           smooth: {
             type: 'cubicBezier',
             forceDirection: 'horizontal',
@@ -160,26 +166,26 @@ export const DependencyGraphVisualization: React.FC<DependencyGraphVisualization
     <div className="bg-white dark:bg-github-card border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-lg">
       
       {/* Control panel */}
-      <div className="px-6 py-4.5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-github-card flex flex-col gap-4">
+      <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-github-card flex flex-col gap-4">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-              <LayoutGrid className="w-5 h-5 text-cyan-555" />
+              <LayoutGrid className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
               <span>Interactive Dependency Graph</span>
             </h3>
-            <p className="text-xs text-slate-450 font-mono mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
               {graphData.graph.nodes.length} registered modules • {graphData.graph.edges.length} connections
             </p>
           </div>
 
           <div className="flex items-center gap-2.5 flex-wrap">
             {/* Filter Selector */}
-            <div className="relative flex items-center bg-white dark:bg-[#0d1117] border border-slate-250 dark:border-slate-800 rounded-xl px-2.5 py-1.5">
+            <div className="relative flex items-center bg-white dark:bg-[#0d1117] border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-1.5">
               <Filter className="w-3.5 h-3.5 text-slate-400 mr-1.5 shrink-0" />
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value as any)}
-                className="bg-transparent text-xs text-slate-700 dark:text-slate-350 focus:outline-none pr-4 font-semibold"
+                className="bg-transparent text-xs text-slate-700 dark:text-slate-300 focus:outline-none pr-4 font-semibold"
               >
                 <option value="all">All Modules</option>
                 <option value="critical">Critical Path</option>
@@ -194,8 +200,8 @@ export const DependencyGraphVisualization: React.FC<DependencyGraphVisualization
               onClick={() => setShowLabels(!showLabels)}
               className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border ${
                 showLabels
-                  ? 'bg-cyan-550 border-cyan-555 text-white shadow-md shadow-cyan-500/10'
-                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-650 dark:text-slate-400'
+                  ? 'bg-cyan-600 border-cyan-600 hover:bg-cyan-700 text-white shadow-md shadow-cyan-500/10'
+                  : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
               }`}
             >
               {showLabels ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
@@ -233,7 +239,7 @@ export const DependencyGraphVisualization: React.FC<DependencyGraphVisualization
       />
 
       {/* Metrics Row */}
-      <div className="px-6 py-4.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-github-card">
+      <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-github-card">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-3 bg-white dark:bg-[#0d1117] rounded-xl border border-slate-200 dark:border-slate-800">
             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Total Assets</div>

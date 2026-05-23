@@ -235,11 +235,11 @@ export const ArchaeologistReport: React.FC<ArchaeologistReportProps> = ({ repoIn
                           className="bg-white dark:bg-github-card border border-slate-200 dark:border-orange-950/20 rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300"
                           whileHover={{ y: -2 }}
                         >
-                           <div className="p-4 bg-orange-500/5 border-b border-slate-250 dark:border-orange-950/15 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                           <div className="p-4 bg-orange-500/5 border-b border-slate-200 dark:border-orange-950/15 flex flex-col md:flex-row md:items-center justify-between gap-3">
                               <div className="space-y-1">
                                  <h3 className="font-bold text-orange-500 text-base">{suggestion.title}</h3>
                                  <div className="text-xs font-semibold flex items-center gap-2 flex-wrap">
-                                    <span className="text-slate-500">Source: <span className="font-bold text-slate-650 dark:text-slate-350">{suggestion.currentModule}</span></span>
+                                    <span className="text-slate-500">Source: <span className="font-bold text-slate-700 dark:text-slate-300">{suggestion.currentModule}</span></span>
                                     <span className="text-slate-400">→</span>
                                     <span className="text-orange-500 font-bold bg-orange-500/10 px-2 py-0.5 rounded">{suggestion.proposedMicroservice}</span>
                                  </div>

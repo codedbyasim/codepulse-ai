@@ -112,18 +112,18 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800/80">
         <motion.button
           onClick={onBack}
-          className="w-fit flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#161b22]/50 hover:bg-slate-50 dark:hover:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-350 transition-all shadow-sm"
+          className="w-fit flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#161b22]/50 hover:bg-slate-50 dark:hover:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 transition-all shadow-sm"
           whileHover={{ x: -3 }}
           whileTap={{ scale: 0.98 }}
         >
-          <ArrowLeft className="w-4 h-4 text-cyan-550" />
+          <ArrowLeft className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
           <span>Back to Analyzer</span>
         </motion.button>
         
         {graphData && (
           <motion.button
             onClick={() => setShowGraph(!showGraph)}
-            className="flex items-center justify-center gap-1.5 px-4.5 py-2.5 bg-gradient-to-r from-purple-550 to-indigo-650 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-500/10"
+            className="flex items-center justify-center gap-1.5 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-500/10"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -136,7 +136,7 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
       {/* Hero Intro */}
       <div className="space-y-2">
         <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-          <Activity className="w-8 h-8 text-cyan-550 animate-pulse" />
+          <Activity className="w-8 h-8 text-cyan-500 animate-pulse" />
           <span>Blast Radius Analysis</span>
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-2xl font-light">
@@ -182,7 +182,7 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Filter code modules (e.g. ts, tsx, py, js)..."
-              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-250 dark:border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-cyan-500 placeholder-slate-400 dark:placeholder-slate-500"
+              className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs text-slate-800 dark:text-white focus:outline-none focus:ring-1 focus:ring-cyan-500 placeholder-slate-400 dark:placeholder-slate-500"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
           </div>
@@ -210,7 +210,7 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <FileText className="w-4 h-4 text-slate-400 group-hover:text-cyan-500 shrink-0" />
-                    <span className="font-mono text-xs text-slate-700 dark:text-slate-350 truncate">
+                    <span className="font-mono text-xs text-slate-700 dark:text-slate-300 truncate">
                       {file}
                     </span>
                   </div>
@@ -224,7 +224,7 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
 
       {/* Analyzing Spinner Screen */}
       {viewMode === 'analyzing' && (
-        <div className="bg-white dark:bg-github-card border border-slate-250 dark:border-slate-800 rounded-2xl p-10 shadow-sm text-center">
+        <div className="bg-white dark:bg-github-card border border-slate-200 dark:border-slate-800 rounded-2xl p-10 shadow-sm text-center">
           <div className="flex flex-col items-center py-6">
             <div className="relative mb-6">
               <div className="w-16 h-16 border-4 border-slate-100 dark:border-slate-800 rounded-full"></div>
@@ -233,7 +233,7 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
             <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
               Analyzing Cascade Impact
             </h3>
-            <p className="text-xs text-slate-450 font-mono mb-4 px-4 py-1.5 bg-slate-50 dark:bg-slate-900/60 rounded-full">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mb-4 px-4 py-1.5 bg-slate-50 dark:bg-slate-900/60 rounded-full">
               {selectedFile}
             </p>
             <p className="text-xs text-cyan-500 dark:text-cyan-400 font-semibold animate-pulse">
@@ -252,7 +252,7 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
             </h2>
             <motion.button
               onClick={handleReset}
-              className="px-4 py-2 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-250 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-705 dark:text-slate-350 shadow-sm"
+              className="px-4 py-2 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-300 shadow-sm"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >

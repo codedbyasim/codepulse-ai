@@ -49,9 +49,9 @@ export const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading, default
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="relative group">
           {/* Neon Border Glow */}
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-650 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-300"></div>
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 rounded-2xl blur opacity-20 group-focus-within:opacity-40 transition duration-300"></div>
           
-          <div className="relative flex items-center bg-white dark:bg-[#0d1117] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-lg pl-4.5 pr-2.5 py-1">
+          <div className="relative flex items-center bg-white dark:bg-[#0d1117] border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-lg pl-4 pr-3 py-1">
             <Search className="w-5 h-5 text-slate-400 shrink-0" />
             
             <input
@@ -68,8 +68,8 @@ export const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading, default
               disabled={isLoading || !url}
               className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shrink-0 ${
                 isLoading || !url
-                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-550 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-cyan-550 to-blue-650 text-white shadow-md shadow-cyan-500/10'
+                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white shadow-md shadow-cyan-500/10'
               }`}
               whileHover={url && !isLoading ? { scale: 1.02 } : {}}
               whileTap={url && !isLoading ? { scale: 0.98 } : {}}
@@ -129,7 +129,7 @@ export const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading, default
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
                     <span>GitHub Personal Access Token</span>
                     <a href="https://github.com/settings/tokens" target="_blank" rel="noreferrer" title="Learn how to generate a token">
-                      <HelpCircle className="w-4 h-4 text-slate-400 hover:text-slate-655" />
+                      <HelpCircle className="w-4 h-4 text-slate-400 hover:text-slate-500" />
                     </a>
                   </label>
                 </div>
@@ -139,19 +139,19 @@ export const RepoForm: React.FC<RepoFormProps> = ({ onSubmit, isLoading, default
                      value={token}
                      onChange={handleTokenChange}
                      placeholder="Paste ghp_xxxxxxxxxxxxxxxxxxxxxxxx here..."
-                     className="w-full px-3.5 py-3 bg-slate-50 dark:bg-[#0d1117] border border-slate-250 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-cyan-500 text-xs text-slate-800 dark:text-white pr-20 transition-all font-mono"
+                     className="w-full px-3.5 py-3 bg-slate-50 dark:bg-[#0d1117] border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-1 focus:ring-cyan-500 text-xs text-slate-800 dark:text-white pr-20 transition-all font-mono"
                    />
                    {token && (
                       <button 
                         type="button"
                         onClick={() => { setToken(''); localStorage.removeItem('gh_token'); }}
-                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-rose-500 hover:text-rose-650 px-2.5 py-1.5 rounded-lg bg-rose-500/5 hover:bg-rose-555/10 transition-colors uppercase tracking-wider"
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-rose-500 hover:text-rose-600 px-2.5 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 transition-colors uppercase tracking-wider"
                       >
                         Clear
                       </button>
                    )}
                 </div>
-                <p className="text-[10px] text-slate-450 mt-2 leading-relaxed font-light">
+                <p className="text-[10px] text-slate-400 mt-2 leading-relaxed font-light">
                   Tokens are stored securely inside your browser's local storage and are sent directly to GitHub to authorize code metadata scanning.
                 </p>
              </motion.div>

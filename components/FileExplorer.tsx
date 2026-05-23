@@ -207,7 +207,7 @@ const FileTreeItem: React.FC<{
           flex items-center gap-2 py-2 pr-2.5 cursor-pointer select-none transition-all duration-200 text-sm border-l-2
           ${isSelected 
             ? `${highlightColor} font-bold` 
-            : 'text-slate-650 dark:text-slate-400 border-transparent hover:bg-slate-50 dark:hover:bg-slate-900/40 hover:text-slate-900 dark:hover:text-slate-200'
+            : 'text-slate-700 dark:text-slate-400 border-transparent hover:bg-slate-50 dark:hover:bg-slate-900/40 hover:text-slate-900 dark:hover:text-slate-200'
           }
         `}
         style={{ paddingLeft: `${level * 12 + 10}px` }}
@@ -377,7 +377,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ repoInfo, structure,
                         <div 
                           key={path} 
                           onClick={() => setSelectedFile(path)}
-                          className={`flex items-center gap-2.5 px-4.5 py-2 text-xs cursor-pointer border-l-2 ${selectedFile === path ? `${highlightClass} font-bold` : 'text-slate-650 dark:text-slate-400 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                          className={`flex items-center gap-2.5 px-4 py-2 text-xs cursor-pointer border-l-2 ${selectedFile === path ? `${highlightClass} font-bold` : 'text-slate-700 dark:text-slate-400 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800'}`}
                         >
                             <SmartFileIcon filename={filename} />
                             <div className="flex flex-col min-w-0 flex-1">
@@ -501,7 +501,7 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ repoInfo, structure,
                               <motion.div 
                                  key={child.path}
                                  onClick={() => setSelectedFile(child.path)}
-                                 className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 hover:border-slate-350 dark:hover:border-slate-650 cursor-pointer transition-all duration-200 group"
+                                 className="flex items-center gap-3 p-3.5 rounded-xl bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer transition-all duration-200 group"
                                  whileHover={{ y: -1 }}
                               >
                                  <div className="shrink-0">
@@ -561,15 +561,15 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ repoInfo, structure,
                                  </div>
                                  
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="bg-slate-50/50 dark:bg-[#161b22]/40 p-4.5 rounded-xl border border-slate-200 dark:border-slate-800">
-                                       <h3 className="text-xs font-bold text-purple-500 uppercase tracking-widest mb-3">Module Summary</h3>
-                                       <p className="text-xs sm:text-sm text-slate-650 dark:text-slate-350 leading-relaxed font-normal">{analysisCache[selectedFile!].summary}</p>
-                                    </div>
-                                    
-                                    <div className="bg-slate-50/50 dark:bg-[#161b22]/40 p-4.5 rounded-xl border border-slate-200 dark:border-slate-800">
-                                       <h3 className="text-xs font-bold text-cyan-500 uppercase tracking-widest mb-3">Intended Integration & Role</h3>
-                                       <p className="text-xs sm:text-sm text-slate-650 dark:text-slate-350 leading-relaxed font-normal">{analysisCache[selectedFile!].potentialUsage}</p>
-                                    </div>
+                                     <div className="bg-slate-50/50 dark:bg-[#161b22]/40 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                                        <h3 className="text-xs font-bold text-purple-500 uppercase tracking-widest mb-3">Module Summary</h3>
+                                        <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">{analysisCache[selectedFile!].summary}</p>
+                                     </div>
+                                     
+                                     <div className="bg-slate-50/50 dark:bg-[#161b22]/40 p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+                                        <h3 className="text-xs font-bold text-cyan-500 uppercase tracking-widest mb-3">Intended Integration & Role</h3>
+                                        <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">{analysisCache[selectedFile!].potentialUsage}</p>
+                                     </div>
                                  </div>
 
                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -76,35 +76,35 @@ export const AboutPage: React.FC = () => {
           <div className="flex-1 w-full">
              <div className="space-y-4">
                  <motion.div 
-                   className="flex items-center gap-4 bg-white dark:bg-[#0d1117] p-4.5 rounded-xl border border-slate-200 dark:border-slate-800/80 hover:scale-[1.01] transition-all"
+                   className="flex items-center gap-4 bg-white dark:bg-[#0d1117] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 hover:scale-[1.01] transition-all"
                    whileHover={{ x: 6 }}
                  >
                     <div className="w-8 h-8 rounded-full bg-cyan-500/10 text-cyan-500 flex items-center justify-center font-bold text-sm shrink-0">1</div>
                     <div className="text-left">
                        <h4 className="font-bold text-slate-900 dark:text-white text-sm">Target Ingestion</h4>
-                       <p className="text-xs text-slate-550 dark:text-slate-400 mt-0.5">Parse repository boundaries and index files.</p>
+                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Parse repository boundaries and index files.</p>
                     </div>
                  </motion.div>
                  
                  <motion.div 
-                   className="flex items-center gap-4 bg-white dark:bg-[#0d1117] p-4.5 rounded-xl border border-slate-200 dark:border-slate-800/80 hover:scale-[1.01] transition-all"
+                   className="flex items-center gap-4 bg-white dark:bg-[#0d1117] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 hover:scale-[1.01] transition-all"
                    whileHover={{ x: 6 }}
                  >
                     <div className="w-8 h-8 rounded-full bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-sm shrink-0">2</div>
                     <div className="text-left">
                        <h4 className="font-bold text-slate-900 dark:text-white text-sm">Dependency Extraction</h4>
-                       <p className="text-xs text-slate-550 dark:text-slate-400 mt-0.5">Isolate file hooks, exports, and imports.</p>
+                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Isolate file hooks, exports, and imports.</p>
                     </div>
                  </motion.div>
                  
                  <motion.div 
-                   className="flex items-center gap-4 bg-white dark:bg-[#0d1117] p-4.5 rounded-xl border border-slate-200 dark:border-slate-800/80 hover:scale-[1.01] transition-all"
+                   className="flex items-center gap-4 bg-white dark:bg-[#0d1117] p-4 rounded-xl border border-slate-200 dark:border-slate-800/80 hover:scale-[1.01] transition-all"
                    whileHover={{ x: 6 }}
                  >
                     <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-sm shrink-0">3</div>
                     <div className="text-left">
                        <h4 className="font-bold text-slate-900 dark:text-white text-sm">Visual Synthesis</h4>
-                       <p className="text-xs text-slate-550 dark:text-slate-400 mt-0.5">Draw Mermaid structural flows, security items, and test plans.</p>
+                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Draw Mermaid structural flows, security items, and test plans.</p>
                     </div>
                  </motion.div>
              </div>

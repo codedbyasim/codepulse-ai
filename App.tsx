@@ -352,9 +352,9 @@ const App: React.FC = () => {
                      </div>
                    )}
 
-                   <p className="text-sm text-slate-655 dark:text-slate-350 leading-relaxed font-mono">{error}</p>
+                   <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-mono">{error}</p>
                    {showTokenHint && (
-                      <p className="text-amber-500 text-xs mt-3 max-w-lg mx-auto bg-amber-500/5 p-3 rounded-xl border border-amber-550/20 leading-relaxed">
+                      <p className="text-amber-500 text-xs mt-3 max-w-lg mx-auto bg-amber-500/5 p-3 rounded-xl border border-amber-500/20 leading-relaxed">
                           <strong>GitHub Rate Limit Tip:</strong> Create a <a href="https://github.com/settings/tokens" target="_blank" rel="noreferrer" className="underline hover:text-amber-400 font-bold">Personal Access Token</a> and paste it above to unlock higher analysis limits.
                       </p>
                    )}
@@ -382,7 +382,7 @@ const App: React.FC = () => {
                     <div className="flex items-center gap-3 w-full sm:w-auto shrink-0 justify-end">
                       <button
                         onClick={() => setCurrentView('blast-radius')}
-                        className="group px-4 py-2.5 bg-gradient-to-r from-red-550 to-orange-550 text-white rounded-xl text-xs font-bold shadow-md shadow-red-500/10 hover:shadow-lg transition-all duration-300 flex items-center gap-1.5"
+                        className="group px-4 py-2.5 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-xl text-xs font-bold shadow-md shadow-red-500/10 hover:shadow-lg transition-all duration-300 flex items-center gap-1.5"
                       >
                         <span className="text-sm">💥</span>
                         <span>Blast Radius Analysis</span>
@@ -393,7 +393,7 @@ const App: React.FC = () => {
                       
                       <span className={`text-[10px] font-bold px-3 py-1 rounded-full border ${
                         analysisMode === 'archaeologist'
-                          ? 'bg-orange-500/10 text-orange-550 border-orange-500/20'
+                          ? 'bg-orange-500/10 text-orange-500 border-orange-500/20'
                           : 'bg-blue-500/10 text-blue-500 border-blue-500/20'
                       }`}>
                         {analysisMode === 'archaeologist' ? 'ARCHAEOLOGIST MODE' : 'BASIC MODE'}
