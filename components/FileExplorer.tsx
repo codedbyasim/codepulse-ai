@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { RepoInfo, FileContent, FileAnalysisResult } from '../types';
 import { Card, DiffViewer, MarkdownRenderer } from './SharedUI';
-import { analyzeSingleFile } from '../services/watsonx';
+import { analyzeSingleFile } from '../services/gemini';
 
 interface FileExplorerProps {
   repoInfo: RepoInfo;
@@ -696,4 +696,3 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({ repoInfo, structure,
   );
 };
 
-// Made with Bob

@@ -3,16 +3,16 @@ import { AnalysisResult, FileContent, AnalysisMode, FileAnalysisResult } from '.
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
-class WatsonxService {
+class GeminiService {
   /**
-   * Call watsonx.ai text generation API via backend proxy
+   * Call Google Gemini API via backend proxy
    */
-  private async callWatsonx(prompt: string, maxTokens: number = 2000): Promise<string> {
+  private async callGemini(prompt: string, maxTokens: number = 2000): Promise<string> {
     try {
-      console.log('🤖 Calling watsonx.ai via backend proxy...');
+      console.log('🤖 Calling Google Gemini API via backend proxy...');
 
       const response = await axios.post<{ text: string }>(
-        `${BACKEND_URL}/api/watsonx/generate`,
+        `${BACKEND_URL}/api/gemini/generate`,
         {
           prompt,
           maxTokens
@@ -22,25 +22,25 @@ class WatsonxService {
         }
       );
 
-      console.log('✅ Watsonx.ai response received');
+      console.log('✅ Gemini API response received');
       return response.data.text;
 
     } catch (error: any) {
       if (error.response) {
-        console.error('❌ Watsonx.ai API error:', error.response.status, error.response.data);
+        console.error('❌ Gemini API error:', error.response.status, error.response.data);
       } else if (error.request) {
-        console.error('❌ Watsonx.ai network error: No response received');
+        console.error('❌ Gemini network error: No response received');
       } else {
-        console.error('❌ Watsonx.ai request error:', error.message);
+        console.error('❌ Gemini request error:', error.message);
       }
-      throw new Error('Failed to call Watsonx API: ' + (error.response?.data?.message || error.message));
+      throw new Error('Failed to call Gemini API: ' + (error.response?.data?.message || error.message));
     }
   }
 
   /**
-   * Parse JSON from watsonx response
+   * Parse JSON from Gemini response
    */
-  private parseWatsonxResponse<T>(text: string): T {
+  private parseGeminiResponse<T>(text: string): T {
     try {
       // Try direct JSON parse first
       return JSON.parse(text);
@@ -54,7 +54,7 @@ class WatsonxService {
           console.error('❌ Failed to parse extracted JSON');
         }
       }
-      throw new Error('Could not parse JSON from watsonx response');
+      throw new Error('Could not parse JSON from Gemini response');
     }
   }
 
@@ -211,8 +211,8 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
   ]
 }`;
 
-    const response = await this.callWatsonx(prompt, 2500);
-    const parsed = this.parseWatsonxResponse<AnalysisResult>(this.cleanJsonOutput(response));
+    const response = await this.callGemini(prompt, 2500);
+    const parsed = this.parseGeminiResponse<AnalysisResult>(this.cleanJsonOutput(response));
     
     if (parsed.classDiagram) parsed.classDiagram = this.fixMermaidSyntax(parsed.classDiagram);
     if (parsed.sequenceDiagram) parsed.sequenceDiagram = this.fixMermaidSyntax(parsed.sequenceDiagram);
@@ -288,8 +288,8 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
   ]
 }`;
 
-    const response = await this.callWatsonx(prompt, 3000);
-    const parsed = this.parseWatsonxResponse<AnalysisResult>(this.cleanJsonOutput(response));
+    const response = await this.callGemini(prompt, 3000);
+    const parsed = this.parseGeminiResponse<AnalysisResult>(this.cleanJsonOutput(response));
     
     if (parsed.classDiagram) parsed.classDiagram = this.fixMermaidSyntax(parsed.classDiagram);
     if (parsed.sequenceDiagram) parsed.sequenceDiagram = this.fixMermaidSyntax(parsed.sequenceDiagram);
@@ -300,7 +300,7 @@ Return ONLY valid JSON in this exact format (no markdown, no code blocks):
   /**
    * Main analysis function
    */
-  async analyzeRepoWithWatsonx(
+  async analyzeRepoWithGemini(
     repoName: string,
     structure: string[],
     files: FileContent[],
@@ -341,8 +341,8 @@ Return ONLY valid JSON in this format:
   "potentialUsage": "string"
 }`;
 
-    const response = await this.callWatsonx(prompt, 1000);
-    return this.parseWatsonxResponse<FileAnalysisResult>(this.cleanJsonOutput(response));
+    const response = await this.callGemini(prompt, 1000);
+    return this.parseGeminiResponse<FileAnalysisResult>(this.cleanJsonOutput(response));
   }
 
   /**
@@ -354,12 +354,7 @@ Return ONLY valid JSON in this format:
     files: FileContent[],
     structure: string[]
   ) {
-    // Return a chat function that maintains context
-    const filesContext = files.map(f => `
---- START FILE: ${f.path} ---
-${f.content}
---- END FILE: ${f.path} ---
-`).join('\n');
+    const filesContext = files.map(f => `\n--- START FILE: ${f.path} ---\n${f.content}\n--- END FILE: ${f.path} ---\n`).join('\n');
 
     const systemContext = `You are an expert AI software architect assistant for the GitHub repository "${repoName}".
 
@@ -389,39 +384,25 @@ User Question: ${userMessage}
 
 Provide a helpful, technical answer based on the repository context above.`;
 
-        const response = await this.callWatsonx(prompt, 1500);
+        const response = await this.callGemini(prompt, 1500);
         return response;
       }
     };
   }
 
   /**
-   * Check if watsonx is configured
+   * Create repo context from files and structure
    */
-  isConfigured(): boolean {
-    return true; // Backend handles configuration
+  createRepoContext(repoName: string, structure: string[], files: FileContent[]): string {
+    const fileContext = files.map(f => `--- FILE: ${f.path} ---\n${f.content}\n`).join('\n');
+    const structureContext = structure.join('\n');
+    return `Repository: ${repoName}\nStructure:\n${structureContext}\nFiles:\n${fileContext}`;
   }
 }
 
 // Export singleton instance
-export const watsonxService = new WatsonxService();
-
-// Export main functions
-export const analyzeRepoWithWatsonx = (
-  repoName: string,
-  structure: string[],
-  files: FileContent[],
-  mode: AnalysisMode
-) => watsonxService.analyzeRepoWithWatsonx(repoName, structure, files, mode);
-
-export const analyzeSingleFile = (fileName: string, content: string) =>
-  watsonxService.analyzeSingleFile(fileName, content);
-
-export const createRepoChat = (
-  repoName: string,
-  analysis: AnalysisResult,
-  files: FileContent[],
-  structure: string[]
-) => watsonxService.createRepoChat(repoName, analysis, files, structure);
-
-// Made with Bob
+const geminiService = new GeminiService();
+export const analyzeRepoWithGemini = geminiService.analyzeRepoWithGemini.bind(geminiService);
+export const analyzeSingleFile = geminiService.analyzeSingleFile.bind(geminiService);
+export const createRepoChat = geminiService.createRepoChat.bind(geminiService);
+export const createRepoContext = geminiService.createRepoContext.bind(geminiService);

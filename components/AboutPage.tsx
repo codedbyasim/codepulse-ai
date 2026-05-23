@@ -36,7 +36,7 @@ export const AboutPage: React.FC = () => {
            </div>
            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 relative z-10">Our Solution</h3>
            <p className="text-gray-600 dark:text-gray-400 leading-relaxed relative z-10">
-             CodePulse AI bridges the gap by using advanced LLMs (IBM Watsonx Granite) to read source code directly. It generates instant <strong>architecture diagrams</strong>, identifies <strong>security vulnerabilities</strong>, plans <strong>refactoring strategies</strong>, and explains complex logic in plain English—saving hours of manual investigation.
+             CodePulse AI bridges the gap by using advanced LLMs (Google Gemini Flash 2.0) to read source code directly. It generates instant <strong>architecture diagrams</strong>, identifies <strong>security vulnerabilities</strong>, plans <strong>refactoring strategies</strong>, and explains complex logic in plain English—saving hours of manual investigation.
            </p>
         </div>
       </div>
@@ -46,7 +46,7 @@ export const AboutPage: React.FC = () => {
           <div className="flex-1 space-y-6">
              <h3 className="text-3xl font-bold text-gray-900 dark:text-white">How It Works</h3>
              <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
-                We combine the GitHub API with IBM Watsonx.ai Granite models. When you submit a link, we fetch the file tree and intelligently select key source files based on the language. The AI then "reads" the project holistically to generate the report.
+                We combine the GitHub API with Google Gemini Flash 2.0 models. When you submit a link, we fetch the file tree and intelligently select key source files based on the language. The AI then "reads" the project holistically to generate the report.
              </p>
           </div>
           <div className="flex-1 w-full">
@@ -62,7 +62,7 @@ export const AboutPage: React.FC = () => {
                     <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">2</div>
                     <div className="text-left">
                        <h4 className="font-bold text-gray-900 dark:text-white text-sm">Contextual Analysis</h4>
-                       <p className="text-xs text-gray-500 dark:text-gray-400">Watsonx processes code patterns & dependencies.</p>
+                       <p className="text-xs text-gray-500 dark:text-gray-400">Gemini processes code patterns & dependencies.</p>
                     </div>
                  </div>
                  <div className="flex items-center gap-4 bg-white dark:bg-black/20 p-4 rounded-xl border border-gray-200 dark:border-white/5 ml-0 md:ml-16">
@@ -79,4 +79,4 @@ export const AboutPage: React.FC = () => {
   );
 };
 
-// Made with Bob
+

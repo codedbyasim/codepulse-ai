@@ -41,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({ rateLimit, theme, toggleTheme, c
 
             <div className="hidden sm:flex flex-col items-end border-l border-gray-200 dark:border-gray-700 pl-6">
               <div className="text-sm text-gray-500 dark:text-gray-400 transition-colors duration-300">
-                Powered by IBM Watsonx.ai
+                Powered by Google Gemini Flash 2.0
               </div>
               {rateLimit && (
                 <div className={`text-xs font-mono mt-1 transition-colors duration-300 ${rateLimit.remaining < 10 ? 'text-red-500 dark:text-red-400 font-bold' : 'text-gray-600'}`} title={`Resets at ${rateLimit.reset.toLocaleTimeString()}`}>
@@ -90,4 +90,3 @@ export const Header: React.FC<HeaderProps> = ({ rateLimit, theme, toggleTheme, c
   );
 };
 
-// Made with Bob

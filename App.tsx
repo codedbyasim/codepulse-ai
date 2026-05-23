@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './components/Header';
+import { HeroSection } from './components/HeroSection';
 import { RepoForm } from './components/RepoForm';
 import { AnalysisReport } from './components/AnalysisReport';
 import { ArchaeologistReport } from './components/ArchaeologistReport';
@@ -9,7 +10,7 @@ import { AboutPage } from './components/AboutPage';
 import { BlastRadiusPage } from './components/BlastRadiusPage';
 import { RepoInfo, AnalysisResult, AnalysisStatus, FileContent, AnalysisMode, RateLimit } from './types';
 import { extractRepoDetails, getRepoMetadata, gatherRepoContext, getGitHubRateLimit } from './services/github';
-import { analyzeRepoWithWatsonx } from './services/watsonx';
+import { analyzeRepoWithGemini } from './services/gemini';
 
 const ANALYSIS_STEPS = [
   { label: "Validating Repository" },
@@ -76,7 +77,7 @@ const App: React.FC = () => {
       let messages = [];
       if (analysisMode === 'archaeologist') {
         messages = [
-          "IBM Watsonx is reading the monolith...",
+          "Gemini is reading the monolith...",
           "Identifying spaghetti code...",
           "Mapping dependency graph...",
           "Generating microservices roadmap...",
@@ -167,7 +168,7 @@ const App: React.FC = () => {
       setLoadingProgress(75);
       
       // The loading message useEffect will take over the text here
-      const aiResult = await analyzeRepoWithWatsonx(info.name, structure, files, analysisMode);
+      const aiResult = await analyzeRepoWithGemini(info.name, structure, files, analysisMode);
       
       setLoadingProgress(100);
       setAnalysis(aiResult);
@@ -208,6 +209,15 @@ const App: React.FC = () => {
          onNavigate={setCurrentView}
       />
       
+      {/* Landing Page: Hero Section - Full Width */}
+      {currentView === 'home' && status === AnalysisStatus.IDLE && !analysisMode && (
+        <HeroSection 
+          onBasicClick={() => setAnalysisMode('basic')}
+          onArchaeologistClick={() => setAnalysisMode('archaeologist')}
+        />
+      )}
+      
+      {/* Other Content - Containerized */}
       <main className="container mx-auto px-4 py-12">
         {currentView === 'about' ? (
            <AboutPage />
@@ -220,66 +230,6 @@ const App: React.FC = () => {
            />
         ) : (
            <>
-              {/* Landing Page: Mode Selection */}
-              {status === AnalysisStatus.IDLE && !analysisMode && (
-                <div className="max-w-4xl mx-auto animate-fade-in-up">
-                   <div className="text-center mb-16">
-                      <h2 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight">
-                        Understand any codebase. <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-green-500 dark:from-blue-400 dark:to-green-400">Instantly.</span>
-                      </h2>
-                      <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                        CodePulse uses IBM Watsonx AI to read documentation, map architecture, and find bugs.
-                        Choose your analysis engine below.
-                      </p>
-                   </div>
-
-                   <div className="grid md:grid-cols-2 gap-8 px-4">
-                      {/* Basic Mode Card */}
-                      <button 
-                        onClick={() => setAnalysisMode('basic')}
-                        className="group relative bg-white dark:bg-github-card border border-gray-200 dark:border-github-border rounded-xl p-8 hover:border-blue-400 dark:hover:border-github-accent transition-all duration-300 text-left hover:shadow-2xl hover:shadow-blue-900/10 hover:-translate-y-1"
-                      >
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                          <svg className="w-24 h-24 text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                        </div>
-                        <div className="w-14 h-14 bg-blue-100 dark:bg-blue-500/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-blue-200 dark:group-hover:bg-blue-500/20 transition-colors">
-                          <svg className="w-7 h-7 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Analyze Repository</h3>
-                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
-                          The standard architectural overview. Perfect for understanding new libraries, checking tech stacks, and getting up to speed quickly.
-                        </p>
-                        <div className="flex gap-2">
-                          <span className="text-xs font-medium px-2 py-1 rounded bg-gray-100 dark:bg-github-dark border border-gray-200 dark:border-github-border text-gray-600 dark:text-gray-300">Architecture</span>
-                          <span className="text-xs font-medium px-2 py-1 rounded bg-gray-100 dark:bg-github-dark border border-gray-200 dark:border-github-border text-gray-600 dark:text-gray-300">Tech Stack</span>
-                        </div>
-                      </button>
-
-                      {/* Archaeologist Mode Card */}
-                      <button 
-                        onClick={() => setAnalysisMode('archaeologist')}
-                        className="group relative bg-white dark:bg-github-card border border-gray-200 dark:border-github-border rounded-xl p-8 hover:border-orange-500/50 transition-all duration-300 text-left hover:shadow-2xl hover:shadow-orange-900/10 hover:-translate-y-1"
-                      >
-                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                           <svg className="w-24 h-24 text-orange-500" fill="currentColor" viewBox="0 0 24 24"><path d="M13.79 16.21l-2.42-2.42 1.42-1.42 2.42 2.42c.86-.86 1.28-2.02 1.14-3.15-.31-2.58-2.56-4.46-5.15-4.46-1.57 0-3.03.71-4.02 1.94l2.25 2.25-1.42 1.42-2.25-2.25C4.54 11.5 5.25 12.96 6.5 13.96c2.58 2.06 6.35 1.77 8.57-.45l3.29 3.29c.39.39 1.02.39 1.41 0 .4-.39.4-1.02.01-1.41l-6-6zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
-                        </div>
-                         <div className="w-14 h-14 bg-orange-100 dark:bg-orange-500/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-orange-200 dark:group-hover:bg-orange-500/20 transition-colors">
-                          <svg className="w-7 h-7 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">Legacy Code Archaeologist</h3>
-                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
-                          Deep dive into monoliths. Identifies "spaghetti code", technical debt, deprecated patterns, and modernization paths.
-                        </p>
-                        <div className="flex gap-2">
-                          <span className="text-xs font-medium px-2 py-1 rounded bg-gray-100 dark:bg-github-dark border border-gray-200 dark:border-github-border text-gray-600 dark:text-gray-300">Tech Debt</span>
-                          <span className="text-xs font-medium px-2 py-1 rounded bg-gray-100 dark:bg-github-dark border border-gray-200 dark:border-github-border text-gray-600 dark:text-gray-300">Refactoring</span>
-                        </div>
-                      </button>
-                   </div>
-                </div>
-              )}
-
               {/* Input Section */}
               {status === AnalysisStatus.IDLE && analysisMode && (
                  <div className="animate-fade-in-up max-w-2xl mx-auto">
@@ -496,4 +446,3 @@ const App: React.FC = () => {
 
 export default App;
 
-// Made with Bob

@@ -278,4 +278,3 @@ export const DependencyGraphVisualization: React.FC<DependencyGraphVisualization
   );
 };
 
-// Made with Bob

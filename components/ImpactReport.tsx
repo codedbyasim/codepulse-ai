@@ -366,4 +366,3 @@ export const ImpactReport: React.FC<ImpactReportProps> = ({ result, repoInfo }) 
   );
 };
 
-// Made with Bob

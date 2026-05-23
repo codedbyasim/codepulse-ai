@@ -211,4 +211,3 @@ export const gatherRepoContext = async (
   return { structure, files: fileContents };
 };
 
-// Made with Bob

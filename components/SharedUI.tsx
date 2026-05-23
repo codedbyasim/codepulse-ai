@@ -441,4 +441,3 @@ export const SecurityItem: React.FC<{ vuln: Vulnerability }> = ({ vuln }) => {
   );
 };
 
-// Made with Bob

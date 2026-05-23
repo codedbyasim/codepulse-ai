@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { RepoInfo, AnalysisResult, FileContent, ChatMessage } from '../types';
-import { createRepoChat } from '../services/watsonx';
+import { createRepoChat } from '../services/gemini';
 import { MarkdownRenderer } from './SharedUI';
 
 interface ChatInterfaceProps {
@@ -10,7 +10,7 @@ interface ChatInterfaceProps {
   structure: string[];
 }
 
-interface WatsonxChat {
+interface GeminiChat {
   sendMessage: (message: string) => Promise<string>;
 }
 
@@ -22,7 +22,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ repoInfo, analysis
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   // Use a ref to hold the Chat object so it persists across renders without causing re-renders
-  const chatSessionRef = useRef<WatsonxChat | null>(null);
+  const chatSessionRef = useRef<GeminiChat | null>(null);
 
   // Initialize chat when component mounts (or when repo changes)
   useEffect(() => {
@@ -31,7 +31,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ repoInfo, analysis
       // Add initial greeting
       setMessages([{
         role: 'model',
-        text: `Hello! I've analyzed **${repoInfo.name}** using IBM Watsonx AI. Ask me anything about the codebase, architecture, or specific files.`
+        text: `Hello! I've analyzed **${repoInfo.name}** using Google Gemini Flash 2.0. Ask me anything about the codebase, architecture, or specific files.`
       }]);
     };
     initChat();
@@ -157,4 +157,3 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({ repoInfo, analysis
   );
 };
 
-// Made with Bob

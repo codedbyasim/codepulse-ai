@@ -8,51 +8,22 @@ const PORT = 3001;
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 
-// Watsonx configuration
-const WATSONX_CONFIG = {
-  apiKey: process.env.IBM_WATSONX_API_KEY,
-  projectId: process.env.IBM_WATSONX_PROJECT_ID,
-  url: process.env.IBM_WATSONX_URL || 'https://us-south.ml.cloud.ibm.com',
-  modelId: process.env.IBM_WATSONX_MODEL_ID || 'ibm/granite-3-8b-instruct'
+// Gemini / AIML API configuration
+const GEMINI_CONFIG = {
+  apiKey: process.env.GOOGLE_GEMINI_API_KEY,
+  modelId: process.env.GOOGLE_GEMINI_MODEL_ID || 'gemini-2.0-flash',
+  url: 'https://generativelanguage.googleapis.com/v1beta/models'
 };
 
-let accessToken = null;
-let tokenExpiry = null;
+// AIML API (third-party) configuration - when present we'll prefer AIML as a proxy
+const AIML_CONFIG = {
+  apiKey: process.env.AIMLAPI_KEY,
+  url: process.env.AIMLAPI_URL || 'https://aimlapi.com',
+  model: process.env.AIMLAPI_MODEL || 'gemini-2.0-flash'
+};
 
-// Authenticate with IBM Cloud IAM
-async function authenticate() {
-  try {
-    if (accessToken && tokenExpiry && Date.now() < tokenExpiry) {
-      return accessToken;
-    }
-
-    console.log('🔐 Authenticating with IBM Cloud IAM...');
-
-    const response = await axios.post(
-      'https://iam.cloud.ibm.com/identity/token',
-      `grant_type=urn:ibm:params:oauth:grant-type:apikey&apikey=${WATSONX_CONFIG.apiKey}`,
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json'
-        }
-      }
-    );
-
-    accessToken = response.data.access_token;
-    tokenExpiry = Date.now() + (55 * 60 * 1000);
-
-    console.log('✅ IBM Cloud IAM authentication successful');
-    return accessToken;
-
-  } catch (error) {
-    console.error('❌ IBM Cloud IAM authentication failed:', error.message);
-    throw new Error('Failed to authenticate with IBM Cloud IAM');
-  }
-}
-
-// Proxy endpoint for Watsonx text generation
-app.post('/api/watsonx/generate', async (req, res) => {
+// Proxy endpoint for Gemini text generation (supports AIML proxy if configured)
+app.post('/api/gemini/generate', async (req, res) => {
   try {
     const { prompt, maxTokens = 2000 } = req.body;
 
@@ -60,44 +31,96 @@ app.post('/api/watsonx/generate', async (req, res) => {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    const token = await authenticate();
+    // If an AIML API key is provided, call the AIML provider first
+    if (AIML_CONFIG.apiKey) {
+      console.log('🤖 Calling AIML API proxy...');
+      try {
+        const aimlResp = await axios.post(
+          `${AIML_CONFIG.url.replace(/\/$/, '')}/generate`,
+          {
+            model: AIML_CONFIG.model,
+            prompt,
+            max_output_tokens: maxTokens,
+            temperature: 0.3
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${AIML_CONFIG.apiKey}`
+            },
+            timeout: 60000
+          }
+        );
 
-    console.log('🤖 Calling watsonx.ai text generation...');
+        console.log('✅ AIML API response received');
+
+        // Try several common response shapes
+        const textCandidate =
+          aimlResp.data?.text ||
+          aimlResp.data?.generated_text ||
+          aimlResp.data?.output?.[0]?.text ||
+          aimlResp.data?.data?.[0]?.text ||
+          (typeof aimlResp.data === 'string' ? aimlResp.data : undefined) ||
+          '';
+
+        return res.json({ text: textCandidate });
+      } catch (err) {
+        console.error('❌ AIML API error:', err?.message || err);
+        if (err.response?.data) console.error('Response data:', err.response.data);
+        // fallthrough to try Google Gemini if available
+      }
+    }
+
+    // Fallback: call Google Generative API if configured
+    if (!GEMINI_CONFIG.apiKey) {
+      return res.status(500).json({ 
+        error: 'No API provider configured',
+        message: 'Set AIMLAPI_KEY or GOOGLE_GEMINI_API_KEY environment variable'
+      });
+    }
+
+    console.log('🤖 Calling Google Gemini API...');
 
     const response = await axios.post(
-      `${WATSONX_CONFIG.url}/ml/v1/text/generation?version=2023-05-29`,
+      `${GEMINI_CONFIG.url}/${GEMINI_CONFIG.modelId}:generateContent?key=${GEMINI_CONFIG.apiKey}`,
       {
-        model_id: WATSONX_CONFIG.modelId,
-        project_id: WATSONX_CONFIG.projectId,
-        input: prompt,
-        parameters: {
-          decoding_method: 'greedy',
-          max_new_tokens: maxTokens,
-          temperature: 0.3,
-          repetition_penalty: 1.05,
-          stop_sequences: ['\n\n\n']
-        }
+        instances: [
+          {
+            content: prompt
+          }
+        ],
+        temperature: 0.3,
+        maxOutputTokens: maxTokens,
+        topP: 0.95,
+        topK: 40
       },
       {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
+          'Content-Type': 'application/json'
         },
         timeout: 60000
       }
     );
 
-    console.log('✅ Watsonx.ai response received');
+    console.log('✅ Gemini API response received');
 
-    const generatedText = response.data.results?.[0]?.generated_text || '';
+    const candidate = response.data.candidates?.[0] || {};
+    const generatedText =
+      candidate?.content?.[0]?.text ||
+      candidate?.output?.[0]?.content ||
+      candidate?.content?.parts?.[0]?.text ||
+      candidate?.content ||
+      '';
     res.json({ text: generatedText });
 
   } catch (error) {
-    console.error('❌ Watsonx API error:', error.message);
+    console.error('❌ Gemini/AIML API error:', error.message || error);
+    if (error.response?.data) {
+      console.error('Response data:', error.response.data);
+    }
     res.status(500).json({ 
-      error: 'Watsonx API call failed',
-      message: error.message 
+      error: 'Gemini/AIML API call failed',
+      message: error.message || String(error) 
     });
   }
 });
@@ -251,18 +274,15 @@ app.post('/api/blast-radius/clear-cache', async (req, res) => {
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', service: 'CodePulse AI Watsonx Proxy' });
+  res.json({ status: 'ok', service: 'CodePulse AI Gemini Proxy' });
 });
 
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
   app.listen(PORT, () => {
-    console.log(`🚀 CodePulse AI Watsonx Proxy running on http://localhost:${PORT}`);
-    console.log(`📡 Watsonx URL: ${WATSONX_CONFIG.url}`);
-    console.log(`🤖 Model: ${WATSONX_CONFIG.modelId}`);
+    console.log(`🚀 CodePulse AI Gemini Proxy running on http://localhost:${PORT}`);
+    console.log(`📡 Gemini Model: ${GEMINI_CONFIG.modelId}`);
   });
 }
 
 export default app;
-
-// Made with Bob
 

@@ -20,5 +20,3 @@ export default defineConfig(({ mode }) => {
       }
     };
 });
-
-// Made with Bob
