@@ -23,7 +23,8 @@ interface GraphNode {
 export const HeroSection: React.FC<{
   onBasicClick: () => void;
   onArchaeologistClick: () => void;
-}> = ({ onBasicClick, onArchaeologistClick }) => {
+  theme: 'dark' | 'light';
+}> = ({ onBasicClick, onArchaeologistClick, theme }) => {
   const [particles, setParticles] = useState<Particle[]>([]);
   const [rippleActive, setRippleActive] = useState(false);
   const [hoveredNode, setHoveredNode] = useState<number | null>(null);
@@ -79,11 +80,11 @@ export const HeroSection: React.FC<{
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-slate-950 overflow-hidden flex items-center">
+    <div className="relative w-full min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300 overflow-hidden flex items-center">
       {/* Animated Grid Background */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-60"></div>
-        <div className="absolute inset-0 bg-gradient-to-tr from-cyan-950/20 via-slate-950 to-blue-950/20"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.06)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#0f172a_1px,transparent_1px),linear-gradient(to_bottom,#0f172a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-60"></div>
+        <div className="absolute inset-0 bg-gradient-to-tr from-cyan-50/40 via-white to-blue-50/40 dark:from-cyan-950/20 dark:via-slate-950 dark:to-blue-950/20 transition-all duration-300"></div>
       </div>
 
       {/* Floating Particles */}
@@ -129,15 +130,15 @@ export const HeroSection: React.FC<{
             initial="hidden"
             animate="visible"
           >
-            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/80 border border-cyan-500/25 backdrop-blur-md">
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-cyan-500/25 backdrop-blur-md shadow-sm">
               <span className="flex h-2 w-2 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
               </span>
-              <span className="text-xs font-semibold text-cyan-400 uppercase tracking-wider">AI-Powered Code Intelligence</span>
+              <span className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 uppercase tracking-wider">AI-Powered Code Intelligence</span>
             </motion.div>
 
-            <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.1]">
+            <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1] transition-colors duration-300">
               Understand Any 
               <span className="block mt-1 bg-gradient-to-r from-cyan-400 via-emerald-400 to-blue-500 text-transparent bg-clip-text">
                 Codebase.
@@ -148,7 +149,7 @@ export const HeroSection: React.FC<{
               </span>
             </motion.h1>
 
-            <motion.p variants={itemVariants} className="text-lg sm:text-xl text-slate-400 leading-relaxed max-w-2xl font-light">
+            <motion.p variants={itemVariants} className="text-lg sm:text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl font-light transition-colors duration-300">
               Map system dependencies, predict blast radius, and audit security flows instantly with next-gen semantic codebase scanning.
             </motion.p>
 
@@ -167,11 +168,11 @@ export const HeroSection: React.FC<{
 
               <motion.button
                 onClick={onArchaeologistClick}
-                className="group px-8 py-4 bg-slate-900/60 border border-slate-800 text-slate-200 hover:border-emerald-500/40 hover:bg-slate-900 font-bold rounded-xl shadow-sm hover:shadow-lg hover:shadow-emerald-500/10 flex items-center justify-center gap-2"
+                className="group px-8 py-4 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-emerald-500/40 hover:bg-slate-50 dark:hover:bg-slate-900 font-bold rounded-xl shadow-sm hover:shadow-lg hover:shadow-emerald-500/10 flex items-center justify-center gap-2 transition-all duration-300"
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Network className="w-5 h-5 text-emerald-400" />
+                <Network className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
                 <span>Legacy Archaeologist</span>
                 <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
               </motion.button>
@@ -180,35 +181,35 @@ export const HeroSection: React.FC<{
             {/* Trust Indicators / Stats */}
             <motion.div 
               variants={itemVariants} 
-              className="flex flex-wrap gap-8 sm:gap-12 pt-8 border-t border-slate-900"
+              className="flex flex-wrap gap-8 sm:gap-12 pt-8 border-t border-slate-200 dark:border-slate-900 transition-colors duration-300"
             >
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-cyan-400 flex items-center gap-1.5">
-                  <Zap className="w-5 h-5 text-cyan-400" />
+                <div className="text-2xl font-bold text-cyan-500 dark:text-cyan-400 flex items-center gap-1.5">
+                  <Zap className="w-5 h-5 text-cyan-500 dark:text-cyan-400" />
                   <span>Instant</span>
                 </div>
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">AI Parsing Speed</div>
+                <div className="text-xs font-semibold text-slate-450 dark:text-slate-500 uppercase tracking-wider transition-colors duration-300">AI Parsing Speed</div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-emerald-400 flex items-center gap-1.5">
-                  <Network className="w-5 h-5 text-emerald-400" />
+                <div className="text-2xl font-bold text-emerald-500 dark:text-emerald-400 flex items-center gap-1.5">
+                  <Network className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
                   <span>Deep Map</span>
                 </div>
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Dependency Scanning</div>
+                <div className="text-xs font-semibold text-slate-450 dark:text-slate-500 uppercase tracking-wider transition-colors duration-300">Dependency Scanning</div>
               </div>
               <div className="space-y-1">
-                <div className="text-2xl font-bold text-rose-400 flex items-center gap-1.5">
-                  <ShieldCheck className="w-5 h-5 text-rose-400" />
+                <div className="text-2xl font-bold text-rose-500 dark:text-rose-450 flex items-center gap-1.5">
+                  <ShieldCheck className="w-5 h-5 text-rose-500 dark:text-rose-450" />
                   <span>Secure</span>
                 </div>
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Vulnerability Profile</div>
+                <div className="text-xs font-semibold text-slate-450 dark:text-slate-500 uppercase tracking-wider transition-colors duration-300">Vulnerability Profile</div>
               </div>
             </motion.div>
           </motion.div>
 
           {/* Right Column: Visual Graph Preview */}
           <motion.div 
-            className="lg:col-span-5 relative w-full h-[400px] sm:h-[480px] bg-slate-900/40 border border-slate-900 rounded-2xl p-4 backdrop-blur-sm flex items-center justify-center shadow-2xl"
+            className="lg:col-span-5 relative w-full h-[400px] sm:h-[480px] bg-white/85 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-900 rounded-2xl p-4 backdrop-blur-sm flex items-center justify-center shadow-lg dark:shadow-2xl transition-all duration-300"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -251,7 +252,7 @@ export const HeroSection: React.FC<{
                       y1={node.y}
                       x2={target.x}
                       y2={target.y}
-                      stroke={isHovered ? '#10b981' : '#1e293b'}
+                      stroke={isHovered ? '#10b981' : (theme === 'dark' ? '#1e293b' : '#e2e8f0')}
                       strokeWidth={isHovered ? '2.5' : '1.5'}
                       className="transition-colors duration-300"
                       strokeDasharray={node.isChanged ? '4' : 'none'}
@@ -298,7 +299,7 @@ export const HeroSection: React.FC<{
                       textAnchor="middle"
                       fontSize="11"
                       fontWeight="600"
-                      fill={node.isChanged ? '#fda4af' : '#a5f3fc'}
+                      fill={node.isChanged ? (theme === 'dark' ? '#fda4af' : '#b91c1c') : (theme === 'dark' ? '#a5f3fc' : '#0369a1')}
                       className="select-none font-mono tracking-tight"
                     >
                       {node.label}
@@ -335,12 +336,11 @@ export const HeroSection: React.FC<{
               })}
             </svg>
 
-            {/* Hover details overlay */}
-            <div className="absolute bottom-6 left-6 right-6 bg-slate-950/80 border border-slate-900 p-4 rounded-xl backdrop-blur-md flex items-center gap-3">
+            <div className="absolute bottom-6 left-6 right-6 bg-white/95 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-900 p-4 rounded-xl backdrop-blur-md flex items-center gap-3 shadow-md dark:shadow-none transition-all duration-300">
               <div className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></div>
               <div className="text-xs">
-                <span className="text-slate-200 font-bold block">Source Modified: main.tsx</span>
-                <span className="text-slate-400">Blast Radius: 4 affected files in dependency chain</span>
+                <span className="text-slate-800 dark:text-slate-200 font-bold block">Source Modified: main.tsx</span>
+                <span className="text-slate-500 dark:text-slate-400">Blast Radius: 4 affected files in dependency chain</span>
               </div>
             </div>
           </motion.div>

@@ -8,12 +8,14 @@ interface DependencyGraphVisualizationProps {
   graphData: GraphGenerationResult;
   selectedFile: string | null;
   onNodeClick: (filePath: string) => void;
+  theme: 'dark' | 'light';
 }
 
 export const DependencyGraphVisualization: React.FC<DependencyGraphVisualizationProps> = ({
   graphData,
   selectedFile,
   onNodeClick,
+  theme,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const networkRef = useRef<Network | null>(null);
@@ -55,16 +57,16 @@ export const DependencyGraphVisualization: React.FC<DependencyGraphVisualization
             title: `${node.label}\nLanguage: ${node.language}\nSize: ${node.size} lines\nComplexity: ${node.complexity}${isCritical ? '\n⚠️ CRITICAL' : ''}`,
             color: {
               background: color,
-              border: isSelected ? '#ffffff' : color,
+              border: isSelected ? (theme === 'dark' ? '#ffffff' : '#0f172a') : color,
               highlight: {
                 background: color,
-                border: '#ffffff',
+                border: theme === 'dark' ? '#ffffff' : '#0f172a',
               },
             },
             size,
             borderWidth: isSelected ? 4 : 2,
             font: {
-              color: '#ffffff',
+              color: theme === 'dark' ? '#ffffff' : '#0f172a',
               size: 12,
               face: 'monospace',
             },
@@ -82,7 +84,7 @@ export const DependencyGraphVisualization: React.FC<DependencyGraphVisualization
           to: edge.to,
           arrows: 'to',
           color: {
-            color: 'rgba(148, 163, 184, 0.3)',
+            color: theme === 'dark' ? 'rgba(148, 163, 184, 0.3)' : 'rgba(71, 85, 105, 0.35)',
             highlight: '#3b82f6',
           },
           width: 1,
@@ -226,7 +228,7 @@ export const DependencyGraphVisualization: React.FC<DependencyGraphVisualization
       {/* Graph Area */}
       <div
         ref={containerRef}
-        className="w-full bg-[#090d16]"
+        className="w-full bg-[#f8fafc] dark:bg-[#090d16] transition-colors duration-300"
         style={{ height: '580px' }}
       />
 

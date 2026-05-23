@@ -13,6 +13,7 @@ interface BlastRadiusPageProps {
   files: FileContent[];
   structure: string[];
   onBack: () => void;
+  theme: 'dark' | 'light';
 }
 
 type ViewMode = 'select' | 'analyzing' | 'results';
@@ -22,6 +23,7 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
   files,
   structure,
   onBack,
+  theme,
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('select');
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
@@ -152,7 +154,7 @@ export const BlastRadiusPage: React.FC<BlastRadiusPageProps> = ({
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <DependencyGraphVisualization
+            <DependencyGraphVisualization theme={theme}
               graphData={graphData}
               selectedFile={selectedFile}
               onNodeClick={handleFileSelect}

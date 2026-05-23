@@ -211,7 +211,7 @@ const App: React.FC = () => {
       
       {/* Landing Page: Hero Section - Full Width */}
       {currentView === 'home' && status === AnalysisStatus.IDLE && !analysisMode && (
-        <HeroSection 
+        <HeroSection theme={theme} 
           onBasicClick={() => setAnalysisMode('basic')}
           onArchaeologistClick={() => setAnalysisMode('archaeologist')}
         />
@@ -222,7 +222,7 @@ const App: React.FC = () => {
         {currentView === 'about' ? (
            <AboutPage />
         ) : currentView === 'blast-radius' && repoInfo && repoFiles.length > 0 ? (
-           <BlastRadiusPage
+           <BlastRadiusPage theme={theme}
              repoInfo={repoInfo}
              files={repoFiles}
              structure={repoStructure}
