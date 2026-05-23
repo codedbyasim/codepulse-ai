@@ -143,10 +143,15 @@ Create a `.env` file in the root directory:
 cp .env.example .env
 ```
 
-Edit the `.env` file with your credentials:
+Edit the `.env` file with your credentials (using either AIML API proxy or direct Google Gemini API):
 
 ```env
-# Google Gemini Configuration
+# Option A: AIML API proxy (Recommended)
+AIMLAPI_KEY=your_aiml_api_key
+AIMLAPI_MODEL=google/gemini-2.5-flash
+AIMLAPI_URL=https://api.aimlapi.com
+
+# Option B: Direct Google Gemini API
 GOOGLE_GEMINI_API_KEY=your_google_gemini_api_key_here
 GOOGLE_GEMINI_MODEL_ID=gemini-2.5-flash
 
@@ -179,28 +184,26 @@ The application will be available at:
 
 ### Environment Variables Explained
 
-| Variable                 | Description                  | Required | Default                             |
-| ------------------------ | ---------------------------- | -------- | ----------------------------------- |
-| `GOOGLE_GEMINI_API_KEY`  | Your Google Gemini API key   | Yes      | -                                   |
-| `GOOGLE_GEMINI_MODEL_ID` | Gemini model to use          | No       | `gemini-2.5-flash`                  |
-| `GITHUB_TOKEN`           | GitHub personal access token | No       | -                                   |
-| `VITE_BACKEND_URL`       | Backend API URL              | No       | `http://localhost:3001`             |
+| Variable                 | Description                              | Required | Default                             |
+| ------------------------ | ---------------------------------------- | -------- | ----------------------------------- |
+| `AIMLAPI_KEY`            | AIML API key proxy                       | Optional | -                                   |
+| `AIMLAPI_MODEL`          | AIML API Gemini model                    | Optional | `google/gemini-2.5-flash`           |
+| `GOOGLE_GEMINI_API_KEY`  | Your direct Google Gemini API key        | Optional | -                                   |
+| `GOOGLE_GEMINI_MODEL_ID` | Direct Gemini model to use               | Optional | `gemini-2.5-flash`                  |
+| `GITHUB_TOKEN`           | GitHub personal access token             | No       | -                                   |
+| `VITE_BACKEND_URL`       | Backend API URL                          | No       | `http://localhost:3001`             |
 
-### Obtaining Google Gemini Credentials
+### Obtaining Credentials
 
-1. **API Key:**
+1. **AIML API:**
+   - Sign up at [AIML API Console](https://aimlapi.com)
+   - Copy your API key and add it to `AIMLAPI_KEY` in `.env`
+
+2. **Google Gemini API Key:**
    - Go to [Google Cloud Console](https://console.cloud.google.com)
    - Navigate to APIs & Services → Credentials
    - Click "Create Credentials" → "API Key"
-   - Copy and save the key securely
-
-2. **Gemini Model:**
-   - The default model is `gemini-2.5-flash`
-   - No project-specific model ID is required unless using a private Gemini deployment
-
-3. **Service URL:**
-   - The backend proxy uses Google Gemini endpoint automatically
-   - No additional service URL is required
+   - Copy and save the key securely as `GOOGLE_GEMINI_API_KEY`
 
 ### GitHub Token (Optional)
 
